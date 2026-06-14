@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌡️ Nhiệt Kế Logger — BV Đà Nẵng</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════ TOKENS ═══════════════════════ */
+:root {
+  --f:'DM Sans',system-ui,sans-serif; --fm:'DM Mono',monospace;
+  --navy:#0f2744; --navy2:#1a4a7c; --blue:#2563eb; --blu:#dbeafe; --blux:#eff6ff;
+  --teal:#0891b2; --teal-lt:#e0f2fe;
+  --green:#059669; --green-lt:#d1fae5;
+  --amber:#d97706; --amber-lt:#fef3c7;
+  --red:#dc2626; --red-lt:#fee2e2;
+  --cold:#0ea5e9; --cold-lt:#e0f2fe;
+  --bg:#f0f4f9; --surf:#fff; --s2:#f8fafc; --bdr:#e2e8f0; --bdr2:#cbd5e1;
+  --t1:#0f172a; --t2:#475569; --t3:#94a3b8;
+  --sw:260px; --th:54px; --bnh:66px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);min-height:100%;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+
+/* ═══════════ ZOOM ROOT ═══════════ */
+#zr{transform-origin:top left;width:100%;min-height:100vh}
+
+/* ═══════════ TOPBAR ═══════════ */
+.tb{
+  position:sticky;top:0;z-index:400;height:var(--th);
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  display:flex;align-items:center;padding:0 16px;gap:12px;
+  box-shadow:0 2px 16px rgba(15,39,68,.45);
+}
+.tb-logo{
+  width:36px;height:36px;border-radius:9px;
+  background:linear-gradient(135deg,#3b82f6,var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;box-shadow:0 3px 10px rgba(59,130,246,.4);
+}
+.tb-info{flex:1;min-width:0}
+.tb-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.tb-sub{font-size:10px;color:#93bbdc;font-weight:500}
+.tb-acts{display:flex;align-items:center;gap:6px;margin-left:auto}
+.zc{display:flex;align-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;overflow:hidden}
+.zb{width:26px;height:26px;border:none;background:none;color:#9ab8d4;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--f);display:flex;align-items:center;justify-content:center;transition:all .12s}
+.zb:hover{background:rgba(255,255,255,.14);color:#fff}
+.zl{font-size:10px;font-weight:700;color:#9ab8d4;padding:0 5px;min-width:36px;text-align:center;font-family:var(--fm);border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1)}
+.mb{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#9ab8d4;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--f);transition:all .15s;white-space:nowrap}
+.mb:hover{background:rgba(255,255,255,.14);color:#fff}
+
+/* ═══════════ SHELL ═══════════ */
+.shell{display:flex;min-height:calc(100vh - var(--th))}
+
+/* ═══════════ SIDEBAR (PC) ═══════════ */
+.sb{
+  width:var(--sw);flex-shrink:0;background:var(--surf);
+  border-right:1px solid var(--bdr);
+  position:sticky;top:var(--th);height:calc(100vh - var(--th));
+  overflow-y:auto;display:flex;flex-direction:column;padding:14px 8px;gap:2px;
+}
+.sb-sec{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1.2px;text-transform:uppercase;padding:10px 10px 5px}
+.sb-btn{
+  display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;
+  font-size:12.5px;font-weight:600;color:var(--t2);cursor:pointer;border:none;
+  background:none;font-family:var(--f);width:100%;text-align:left;transition:all .15s;margin-bottom:1px;
+}
+.sb-btn:hover{background:var(--s2);color:var(--t1)}
+.sb-btn.active{background:var(--blux);color:var(--blue);font-weight:700}
+.sb-btn .ico{font-size:15px;width:18px;text-align:center}
+.sb-div{height:1px;background:var(--bdr);margin:6px 8px}
+
+/* ═══════════ CONTENT ═══════════ */
+.ct{flex:1;min-width:0;padding:20px 24px;max-width:960px}
+.ct-wide{max-width:100%}
+
+/* ═══════════ BOTTOM NAV (Mobile) ═══════════ */
+.bnav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:600px;height:var(--bnh);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(20px);
+  border-top:1px solid var(--bdr);display:flex;align-items:stretch;
+  padding:0 8px;z-index:300;box-shadow:0 -3px 20px rgba(15,39,68,.07);
+}
+.nb{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;border:none;background:none;font-family:var(--f);
+  padding:6px 4px;border-radius:12px;margin:6px 3px;transition:background .15s;position:relative;
+}
+.nb:active{background:var(--bg)}
+.ni{font-size:20px;line-height:1;transition:transform .18s}
+.nl{font-size:9.5px;font-weight:600;color:var(--t3)}
+.nb.active .ni{transform:scale(1.12)}
+.nb.active .nl{color:var(--blue)}
+.nb.active::after{content:'';position:absolute;bottom:-6px;width:20px;height:2.5px;background:var(--blue);border-radius:2px}
+
+/* ═══════════ PANELS ═══════════ */
+.panel{display:none;flex-direction:column;gap:14px}
+.panel.active{display:flex;animation:su .2s ease both}
+@keyframes su{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════ CARDS ═══════════ */
+.card{background:var(--surf);border-radius:14px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 1px 6px rgba(15,39,68,.05)}
+.card-h{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--bdr);background:var(--s2)}
+.badge{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-t{font-size:13.5px;font-weight:700;color:var(--t1)}
+.card-b{padding:16px}
+
+/* ═══════════ KHO TABS ═══════════ */
+.ktabs{display:flex;gap:4px;padding:4px;background:var(--bg);border-radius:12px;border:1px solid var(--bdr);flex-wrap:wrap}
+.ktab{flex:1;min-width:70px;padding:7px 10px;border-radius:9px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:none;font-family:var(--f);color:var(--t2);transition:all .15s;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
+.ktab.active{background:var(--surf);color:var(--blue);box-shadow:0 2px 6px rgba(15,39,68,.08)}
+.ktab.fr.active{color:var(--cold)}
+
+/* ═══════════ DEVICE GRID ═══════════ */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:9px;margin-top:13px}
+.dc{border:1.5px solid var(--bdr);border-radius:11px;padding:11px 13px;cursor:pointer;transition:all .15s;position:relative;background:var(--s2)}
+.dc:hover{border-color:var(--blue);background:var(--blux)}
+.dc.sel{border-color:var(--blue);background:var(--blux);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.dc.fr:hover{border-color:var(--cold);background:var(--cold-lt)}
+.dc.fr.sel{border-color:var(--cold);background:var(--cold-lt);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+.dc-n{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.dc-s{font-size:10px;font-family:var(--fm);color:var(--t3);margin-bottom:6px}
+.dc-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:700;background:var(--blu);color:var(--blue)}
+.dc-tag.c{background:var(--cold-lt);color:var(--cold)}
+.dc-ed{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;border:none;background:rgba(15,39,68,.06);color:var(--t3);transition:all .12s;opacity:0}
+.dc:hover .dc-ed{opacity:1}
+.dc-ed:hover{background:var(--bdr);color:var(--t1)}
+.dc.add{border-style:dashed;border-color:var(--bdr2);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--t3);font-size:12.5px;font-weight:600;min-height:80px;background:none}
+.dc.add:hover{border-color:var(--blue);color:var(--blue);background:var(--blux)}
+
+/* ═══════════ FORMS ═══════════ */
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fr4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.frow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.f{display:flex;flex-direction:column;gap:4px}
+.f label{font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.2px}
+.inp{width:100%;padding:8px 11px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;color:var(--t1);font-family:var(--f);font-weight:500;outline:none;transition:border .15s,box-shadow .15s;background:var(--surf)}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.inp[type=datetime-local],.inp[type=date]{font-family:var(--fm);font-size:12px}
+.tg{display:flex;border:1.5px solid var(--bdr);border-radius:9px;overflow:hidden}
+.tgo{flex:1;padding:8px 12px;border:none;background:var(--s2);font-size:12.5px;font-weight:600;cursor:pointer;color:var(--t2);font-family:var(--f);transition:all .18s;text-align:center}
+.tgo.on{background:var(--navy);color:#fff}
+.tgo.fr-on{background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff}
+.src-tg{display:flex;gap:7px;flex-wrap:wrap}
+.srb{padding:8px 14px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--s2);font-size:12px;font-weight:600;cursor:pointer;color:var(--t2);font-family:var(--f);transition:all .15s}
+.srb.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ═══════════ DROP ZONE ═══════════ */
+.dz{border:2px dashed var(--bdr2);border-radius:11px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;background:var(--s2);display:flex;flex-direction:column;align-items:center;gap:5px}
+.dz:hover,.dz.drag{border-color:var(--blue);background:var(--blux)}
+.dz.ok{border-style:solid;border-color:var(--green);background:#f0fdf4}
+.dz input{display:none}
+.dz-icon{font-size:24px}
+.dz-lbl{font-size:13px;font-weight:700;color:var(--t1)}
+.dz-hint{font-size:11px;color:var(--t3)}
+.dz-fn{font-size:11px;color:var(--green);font-weight:700;margin-top:3px}
+
+/* ═══════════ BUTTONS ═══════════ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 16px;height:40px;border-radius:9px;border:none;font-family:var(--f);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .12s;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn-navy{background:var(--navy);color:#fff;box-shadow:0 3px 10px rgba(15,39,68,.2)}
+.btn-navy:hover{background:var(--navy2)}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(37,99,235,.28)}
+.btn-teal{background:var(--teal);color:#fff;box-shadow:0 3px 10px rgba(8,145,178,.25)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(5,150,105,.25)}
+.btn-ghost{background:var(--surf);color:var(--t2);border:1.5px solid var(--bdr)}
+.btn-ghost:hover{background:var(--s2)}
+.btn-danger{background:var(--red-lt);color:var(--red);border:1.5px solid #fca5a5}
+.btn-sm{height:30px;padding:0 10px;font-size:11px;border-radius:7px}
+.btn-lg{height:46px;font-size:14px;width:100%}
+
+/* ═══════════ NOTICES ═══════════ */
+.notice{border-radius:9px;padding:10px 13px;font-size:12px;font-weight:500;line-height:1.5;display:flex;gap:8px;align-items:flex-start;border:1px solid}
+.n-info{background:var(--blux);border-color:#bfdbfe;color:#1e40af}
+.n-ok{background:#f0fdf4;border-color:#86efac;color:#14532d}
+.n-warn{background:var(--amber-lt);border-color:#fcd34d;color:#78350f}
+.n-err{background:var(--red-lt);border-color:#fca5a5;color:#7f1d1d}
+
+/* ═══════════ STAT TILES ═══════════ */
+.sg{display:flex;gap:7px;flex-wrap:wrap}
+.st{flex:1;min-width:80px;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;text-align:center}
+.sv{font-size:16px;font-weight:700;color:var(--navy);font-family:var(--fm);letter-spacing:-.5px}
+.sl{font-size:9.5px;color:var(--t3);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
+
+/* ═══════════ A4 PREVIEW ═══════════ */
+.a4-wrap{background:#c8d0dc;border-radius:12px;padding:14px;border:1px solid var(--bdr);overflow:hidden}
+.a4-wrap-header{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.a4-tabs{display:flex;gap:3px;background:rgba(0,0,0,.1);border-radius:7px;padding:3px}
+.a4-tab{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.7);font-family:var(--f);transition:all .15s}
+.a4-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.a4-scroll{overflow:hidden;border-radius:4px;background:#888}
+.a4-scaler{transform-origin:top left;display:inline-block}
+/* The actual A4 page */
+.a4-page{
+  width:794px;background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.2);
+  box-sizing:border-box;min-height:200px;
+  font-family:Arial,sans-serif;font-size:10pt;color:#000;
+}
+.a4-empty{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--t3);font-size:12px;font-family:var(--f)}
+
+/* ═══════════ TABLE PREVIEW ═══════════ */
+.tw{max-height:240px;overflow-y:auto;overflow-x:auto;border:1px solid var(--bdr);border-radius:9px}
+table.pt{width:100%;border-collapse:collapse;font-size:11.5px}
+table.pt thead{position:sticky;top:0;background:var(--s2);z-index:2}
+table.pt th{padding:7px 9px;text-align:left;font-weight:700;color:var(--t2);border-bottom:1.5px solid var(--bdr);white-space:nowrap;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+table.pt td{padding:5px 9px;border-bottom:1px solid var(--bdr);color:var(--t1);white-space:nowrap;font-family:var(--fm);font-size:11px}
+table.pt tr:nth-child(even) td{background:var(--s2)}
+table.pt tr:last-child td{border-bottom:none}
+
+/* ═══════════ MODAL ═══════════ */
+.mo{display:none;position:fixed;inset:0;background:rgba(15,39,68,.5);z-index:600;align-items:center;justify-content:center;padding:16px}
+.mo.open{display:flex;animation:mof .18s ease}
+@keyframes mof{from{opacity:0}to{opacity:1}}
+.mo-box{background:var(--surf);border-radius:16px;padding:22px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(15,39,68,.25);animation:moi .2s ease}
+@keyframes moi{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.mo-t{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.mo-f{display:flex;gap:8px;margin-top:18px}
+.mo-f .btn{flex:1}
+@media(max-width:600px){
+  .mo{align-items:flex-end;padding:0}
+  .mo-box{border-radius:20px 20px 0 0;padding:22px 16px 36px;max-width:100%}
+}
+
+/* ═══════════ DL MODAL ═══════════ */
+#dlm{display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,39,68,.5);align-items:flex-end;justify-content:center}
+#dlm .dlsh{background:#fff;border-radius:22px 22px 0 0;padding:22px 18px 38px;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(15,39,68,.2)}
+.dl-hd{width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 16px}
+.dl-t{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:5px}
+.dl-s{font-size:12px;color:var(--t2);margin-bottom:16px}
+.dl-a{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--blue),var(--navy2));color:#fff;text-decoration:none;font-family:var(--f);font-size:15px;font-weight:700;padding:15px;border-radius:12px;margin-bottom:10px;box-shadow:0 4px 16px rgba(37,99,235,.35)}
+
+/* ═══════════ LAYOUT MODES ═══════════ */
+.mobile-layout .shell{flex-direction:column;max-width:600px;margin:0 auto}
+.mobile-layout .sb{display:none}
+.mobile-layout .ct{padding:12px 12px calc(var(--bnh)+14px)}
+.mobile-layout .bnav{display:flex}
+.mobile-layout .fr4{grid-template-columns:1fr 1fr}
+.mobile-layout .fr3{grid-template-columns:1fr 1fr}
+.pc-layout .bnav{display:none}
+.pc-layout .ct{padding:22px 28px}
+.pc-layout .shell{min-height:calc(100vh - var(--th))}
+.hidden{display:none!important}
+.mt8{margin-top:8px}
+.mt12{margin-top:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ═══════════ ELITECH A4 PAGE STYLES ═══════════ */
+/* These apply inside .a4-page only */
+.a4-page .eli-wrap{padding:28px 36px;font-family:Arial,Helvetica,sans-serif;font-size:9.5pt;line-height:1.4}
+.a4-page .eli-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1a3a5c}
+.a4-page .eli-brand{display:flex;align-items:center;gap:10px}
+.a4-page .eli-logo{width:44px;height:44px;background:linear-gradient(135deg,#1a3a5c,#2980b9);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px}
+.a4-page .eli-brand-text .t1{font-size:16pt;font-weight:900;color:#1a3a5c;font-style:italic;letter-spacing:-0.5px}
+.a4-page .eli-brand-text .t2{font-size:8pt;color:#555;margin-top:1px}
+.a4-page .eli-hdr-right{text-align:right;font-size:8pt;color:#555}
+.a4-page .eli-hdr-right .dr{font-size:9pt;font-weight:600;color:#333}
+.a4-page .eli-section{margin-bottom:10px}
+.a4-page .eli-section-title{font-size:9.5pt;font-weight:700;color:#fff;background:#1a3a5c;padding:3px 8px;margin-bottom:0}
+.a4-page .eli-tbl{width:100%;border-collapse:collapse;font-size:8.5pt}
+.a4-page .eli-tbl td{padding:3px 7px;border:0.5pt solid #ccc;vertical-align:middle}
+.a4-page .eli-tbl tr:nth-child(even) td{background:#f5f7fa}
+.a4-page .eli-tbl .lbl{font-weight:700;color:#1a3a5c;width:160px;white-space:nowrap}
+.a4-page .eli-tbl .lbl2{font-weight:700;color:#1a3a5c;padding-left:20px;white-space:nowrap}
+.a4-page .eli-alarm-tbl{width:100%;border-collapse:collapse;font-size:8.5pt}
+.a4-page .eli-alarm-tbl th{background:#1a3a5c;color:#fff;padding:3px 7px;text-align:left;font-weight:700;font-size:8pt}
+.a4-page .eli-alarm-tbl td{padding:3px 7px;border:0.5pt solid #ccc;vertical-align:middle}
+.a4-page .eli-alarm-tbl tr:nth-child(even) td{background:#f5f7fa}
+.a4-page .eli-ok{color:#16a34a;font-weight:700}
+.a4-page .eli-alarm{color:#dc2626;font-weight:700}
+.a4-page .eli-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.a4-page .eli-sum-box{border:0.5pt solid #ccc;border-radius:3px;padding:6px 8px}
+.a4-page .eli-sum-box .st{font-size:8pt;font-weight:700;color:#1a3a5c;border-bottom:0.5pt solid #ddd;padding-bottom:3px;margin-bottom:4px}
+.a4-page .eli-sum-row{display:flex;justify-content:space-between;font-size:8pt;padding:1.5pt 0;border-bottom:0.3pt dotted #eee}
+.a4-page .eli-sum-row:last-child{border-bottom:none}
+.a4-page .eli-sum-row .k{color:#555}
+.a4-page .eli-sum-row .v{font-weight:700;color:#1a3a5c;font-family:monospace}
+.a4-page .eli-chart-area{border:0.5pt solid #ccc;border-radius:3px;overflow:hidden;background:#fff}
+.a4-page .eli-chart-title{font-size:8pt;color:#555;padding:4px 8px;border-bottom:0.5pt solid #eee;background:#f8f8f8;display:flex;justify-content:space-between}
+.a4-page .eli-chart-legend{display:flex;gap:16px;font-size:7.5pt;color:#555}
+.a4-page .eli-chart-legend span{display:flex;align-items:center;gap:4px}
+.a4-page .eli-footer{display:flex;justify-content:space-between;font-size:7.5pt;color:#888;border-top:0.5pt solid #ccc;padding-top:5px;margin-top:8px}
+/* Data page */
+.a4-page .eli-data-hdr{font-size:8.5pt;font-weight:700;color:#fff;background:#1a3a5c;padding:3px 8px;margin-bottom:0;display:flex;justify-content:space-between}
+.a4-page .eli-data-tbl{width:100%;border-collapse:collapse;font-size:7pt;font-family:monospace}
+.a4-page .eli-data-tbl th{background:#1a3a5c;color:#fff;padding:2pt 5pt;text-align:center;white-space:nowrap}
+.a4-page .eli-data-tbl td{padding:1.5pt 4pt;border:0.3pt solid #ddd;text-align:left;white-space:nowrap}
+.a4-page .eli-data-tbl tr:nth-child(even) td{background:#f8f8f8}
+.a4-page .eli-data-tbl .date-row td{background:#dce8f5;font-weight:700;font-size:7.5pt}
+/* Result/conclusion */
+.a4-page .eli-conclusion{border:1pt solid;border-radius:3px;padding:6px 10px;font-size:9pt;font-weight:700;margin:6px 0}
+.a4-page .eli-ok-box{background:#f0fdf4;border-color:#86efac;color:#14532d}
+.a4-page .eli-warn-box{background:#fefce8;border-color:#fcd34d;color:#78350f}
+/* Signatures */
+.a4-page .eli-sig{display:grid;grid-template-columns:1fr 1fr;gap:24pt;margin-top:10pt}
+.a4-page .eli-sig-col{text-align:center;font-size:8.5pt}
+.a4-page .eli-sig-col .st{font-weight:700;margin-bottom:2pt}
+.a4-page .eli-sig-space{height:32pt}
+/* Canvas in a4 */
+.a4-page canvas{display:block;width:100%}
+
+/* ═══════════ PRINT ═══════════ */
+@media print{
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  body,html{background:#fff}
+  .tb,.bnav,.sb,#dlm,.mo,.no-print,
+  .ktabs,.a4-wrap-header,.a4-tabs,.zc,.mb,
+  .card-h .badge,.card-h .btn,.mt8,.sg,
+  #panel-device,.notice,
+  button,.btn{display:none!important}
+  #panel-data{display:block!important}
+  .card{border:none;box-shadow:none;border-radius:0}
+  .card-b{padding:0}
+  #result-section{display:block!important}
+  .a4-wrap{background:none;padding:0;border:none;border-radius:0}
+  .a4-scroll{overflow:visible}
+  .a4-scaler{transform:none!important;width:100%!important}
+  .a4-page{width:100%;box-shadow:none;page-break-inside:avoid}
+  @page{margin:0;size:A4}
+}
+</style>
+</head>
+<body class="mobile-layout">
+<div id="zr">
+
+<!-- TOPBAR -->
+<header class="tb">
+  <div class="tb-logo">🌡️</div>
+  <div class="tb-info">
+    <div class="tb-title">Nhiệt Kế Logger</div>
+    <div class="tb-sub">BV Đà Nẵng · Khoa Dược</div>
+  </div>
+  <div class="tb-acts">
+    <div class="zc">
+      <button class="zb" onclick="adjZ(-.1)">−</button>
+      <span class="zl" id="zlbl">100%</span>
+      <button class="zb" onclick="adjZ(.1)">+</button>
+    </div>
+    <button class="mb" id="mbtn" onclick="toggleMode()">
+      <span id="mico">🖥️</span><span id="mlbl">PC</span>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+<!-- SIDEBAR (PC) -->
+<nav class="sb" id="sidebar">
+  <div class="sb-sec">Thiết bị</div>
+  <button class="sb-btn active" id="sb-dev" onclick="showPanel('p-dev')"><span class="ico">🏷️</span>Thiết bị & Kho</button>
+  <div class="sb-div"></div>
+  <div class="sb-sec">Xuất dữ liệu</div>
+  <button class="sb-btn" id="sb-dat" onclick="showPanel('p-dat')"><span class="ico">📊</span>Nhập & Xử lý</button>
+  <button class="sb-btn" id="sb-rpt" onclick="showPanel('p-rpt')"><span class="ico">📄</span>Xem trước & Xuất</button>
+  <div class="sb-div"></div>
+  <div class="sb-sec">Zoom</div>
+  <div style="display:flex;gap:5px;padding:0 6px;align-items:center">
+    <button class="btn btn-ghost btn-sm" style="flex:1" onclick="adjZ(-.1)">−</button>
+    <span id="zlbl2" style="font-size:11px;font-weight:700;color:var(--t2);min-width:34px;text-align:center;font-family:var(--fm)">100%</span>
+    <button class="btn btn-ghost btn-sm" style="flex:1" onclick="adjZ(.1)">+</button>
+    <button class="btn btn-ghost btn-sm" onclick="resetZ()">↺</button>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<main class="ct" id="main-ct">
+
+<!-- ══ PANEL: THIẾT BỊ ══ -->
+<div class="panel active" id="p-dev">
+
+  <div class="card">
+    <div class="card-h">
+      <div class="badge">1</div>
+      <div class="card-t">Bộ nhớ thiết bị theo kho</div>
+      <button class="btn btn-ghost btn-sm no-print" style="margin-left:auto" onclick="openDev(null)">＋ Thêm</button>
+    </div>
+    <div class="card-b">
+      <div class="ktabs" id="ktabs">
+        <button class="ktab active" data-k="all" onclick="filterK('all')">🏷️ Tất cả</button>
+        <button class="ktab" data-k="normal" onclick="filterK('normal')">🏭 Kho thường</button>
+        <button class="ktab fr" data-k="fridge" onclick="filterK('fridge')">❄️ Tủ lạnh</button>
+      </div>
+      <div class="dg" id="dg"></div>
+    </div>
+  </div>
+
+  <div class="card" id="cfg-card">
+    <div class="card-h">
+      <div class="badge">2</div>
+      <div class="card-t">Cấu hình thiết bị đã chọn</div>
+    </div>
+    <div class="card-b">
+      <div class="notice n-info" id="sel-notice"><span>👆</span> Chọn thiết bị ở trên để điền thông tin tự động</div>
+      <div id="cfg-form" class="hidden mt12">
+        <div class="fr3" style="margin-bottom:10px">
+          <div class="f"><label>Serial Number</label><input class="inp" id="serial" placeholder="EFG24A104453"></div>
+          <div class="f"><label>Device Model</label><input class="inp" id="model" placeholder="GSP-6"></div>
+          <div class="f"><label>Trip Description</label><input class="inp" id="tripDesc" placeholder="GSP-6 temperature & humidity..."></div>
+        </div>
+        <div class="fr4">
+          <div class="f"><label>Ngưỡng cao H1 (°C)</label><input type="number" class="inp" id="alarmH" step="0.1"></div>
+          <div class="f"><label>Ngưỡng thấp L1 (°C)</label><input type="number" class="inp" id="alarmL" step="0.1"></div>
+          <div class="f"><label>Ẩm cao HH (%)</label><input type="number" class="inp" id="alarmHH" step="0.1"></div>
+          <div class="f"><label>Ẩm thấp HL (%)</label><input type="number" class="inp" id="alarmHL" step="0.1"></div>
+        </div>
+        <div class="mt8 row">
+          <button class="btn btn-blue btn-sm" onclick="showPanel('p-dat')">Tiếp theo →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /p-dev -->
+
+<!-- ══ PANEL: NHẬP DỮ LIỆU ══ -->
+<div class="panel" id="p-dat">
+
+  <div class="card">
+    <div class="card-h"><div class="badge">3</div><div class="card-t">Nguồn dữ liệu &amp; thời gian</div></div>
+    <div class="card-b">
+      <div class="f" style="margin-bottom:12px">
+        <label>Chế độ nhập</label>
+        <div class="src-tg">
+          <button class="srb on" id="src-auto" onclick="setSrc('auto')">⚙️ Tạo ngẫu nhiên</button>
+          <button class="srb" id="src-file" onclick="setSrc('file')">📂 Đọc từ file</button>
+        </div>
+      </div>
+      <div id="pan-auto">
+        <div class="fr2" style="margin-bottom:10px">
+          <div class="f"><label>Từ ngày giờ</label><input type="datetime-local" class="inp" id="dtStart"></div>
+          <div class="f"><label>Đến ngày giờ</label><input type="datetime-local" class="inp" id="dtEnd"></div>
+        </div>
+        <div class="notice n-info">ℹ️ Mỗi 15 phút 1 bản ghi · Kho thường: 18–25°C, RH 60–75% · Tủ lạnh: 3–7°C, RH 98–100%</div>
+      </div>
+      <div id="pan-file" class="hidden">
+        <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+          <div class="dz-icon">📤</div>
+          <div class="dz-lbl">Kéo thả hoặc nhấn để chọn file</div>
+          <div class="dz-hint">.xlsx từ nhiệt kế · Cột: No. | Time | Temperature°C | Humidity%</div>
+          <div class="dz-fn hidden" id="dzfn"></div>
+          <input type="file" id="fi" accept=".xlsx,.xls,.csv">
+        </div>
+        <div class="notice n-ok hidden mt8" id="fi-notice"></div>
+        <div class="fr2 mt8">
+          <div class="f"><label>Lọc từ ngày</label><input type="date" class="inp" id="fFrom"></div>
+          <div class="f"><label>Lọc đến ngày</label><input type="date" class="inp" id="fTo"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="badge">4</div><div class="card-t">Tạo dữ liệu</div></div>
+    <div class="card-b">
+      <div id="sel-banner" class="hidden notice n-ok" style="margin-bottom:12px"><span id="sel-txt"></span></div>
+      <button class="btn btn-navy btn-lg" id="gen-btn" onclick="generate()">⚙️ Tạo &amp; xem trước dữ liệu</button>
+      <div class="notice n-err hidden mt8" id="err-box"></div>
+      <div id="result-quick" class="hidden mt12">
+        <div class="sg" id="sg" style="margin-bottom:10px"></div>
+        <div class="notice n-info hidden" id="rng-notice" style="margin-bottom:10px"></div>
+        <div class="row no-print" style="margin-bottom:10px">
+          <button class="btn btn-blue" onclick="showPanel('p-rpt');setTimeout(renderPreviews,100)">👁️ Xem trước & Xuất</button>
+          <button class="btn btn-ghost" onclick="resetAll()">🔄 Làm lại</button>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Xem trước 50 dòng</div>
+        <div class="tw"><table class="pt" id="prev-tbl"></table></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /p-dat -->
+
+<!-- ══ PANEL: XEM TRƯỚC & XUẤT ══ -->
+<div class="panel" id="p-rpt">
+
+  <!-- Action buttons -->
+  <div class="card no-print">
+    <div class="card-h"><div class="badge">5</div><div class="card-t">Xuất file &amp; In</div></div>
+    <div class="card-b">
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <button class="btn btn-navy" onclick="dlDataReport()">⬇️ Data Report (.xlsx)</button>
+        <button class="btn btn-teal" onclick="dlPhieuTD()">📋 Phiếu TĐ (.xlsx)</button>
+        <button class="btn btn-blue" onclick="dlSummary()">⬇️ Summary Report (.xlsx)</button>
+        <button class="btn btn-teal" onclick="dlElitechReport()">📄 Elitech Report (.xlsx)</button>
+        <button class="btn btn-green" onclick="printElitech()">🖨️ In báo cáo elitech</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A4 Preview: Elitech Summary -->
+  <div class="card">
+    <div class="card-h">
+      <div class="card-t">🖨️ Xem trước — Elitech Data Report</div>
+    </div>
+    <div class="card-b" style="padding:12px">
+      <div class="a4-wrap" id="aw-eli">
+        <div class="a4-wrap-header" style="color:rgba(255,255,255,.7)">
+          <span>📄 Trang 1/N — Thông tin &amp; Tổng hợp</span>
+          <div class="a4-tabs" id="eli-tabs"></div>
+        </div>
+        <div class="a4-scroll" id="eli-scroll">
+          <div class="a4-scaler" id="eli-scaler">
+            <div class="a4-page" id="eli-page">
+              <div class="a4-empty"><div style="font-size:32px;opacity:.3">📋</div><div>Tạo dữ liệu để xem trước báo cáo elitech</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A4 Preview: Summary Report -->
+  <div class="card">
+    <div class="card-h"><div class="card-t">📊 Xem trước — Summary Report (BV Đà Nẵng)</div></div>
+    <div class="card-b" style="padding:12px">
+      <div class="a4-wrap" id="aw-sum">
+        <div class="a4-wrap-header" style="color:rgba(255,255,255,.7)">📊 Báo cáo tổng hợp</div>
+        <div class="a4-scroll" id="sum-scroll">
+          <div class="a4-scaler" id="sum-scaler">
+            <div class="a4-page" id="sum-page" style="padding:0">
+              <div class="a4-empty"><div style="font-size:32px;opacity:.3">📊</div><div>Xem trước sau khi tạo dữ liệu</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- A4 Preview: Phiếu Theo Dõi Nhiệt Độ -->
+  <div class="card">
+    <div class="card-h">
+      <div class="card-t">📋 Xem trước — Phiếu Theo Dõi Nhiệt Độ (SOP.VC.7)</div>
+      <div id="ptd-prev-tabs" class="a4-tabs" style="margin-left:auto"></div>
+    </div>
+    <div class="card-b" style="padding:12px">
+      <div class="a4-wrap" id="aw-ptd-prev">
+        <div class="a4-wrap-header" style="color:rgba(255,255,255,.7)">
+          <span>📋 Phiếu theo dõi theo SOP.VC.7</span>
+        </div>
+        <div class="a4-scroll" id="ptd-prev-scroll">
+          <div class="a4-scaler" id="ptd-prev-scaler">
+            <div class="a4-page" id="ptd-prev-page">
+              <div class="a4-empty"><div style="font-size:32px;opacity:.3">📋</div><div>Tạo dữ liệu để xem trước Phiếu Theo Dõi</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /p-rpt -->
+
+
+<!-- ══ PANEL: PHIẾU THEO DÕI NHIỆT ĐỘ ══ -->
+<div class="panel" id="p-ptd">
+
+  <!-- Header card -->
+  <div class="card no-print">
+    <div class="card-h"><div class="badge">📋</div><div class="card-t">Phiếu Theo Dõi Nhiệt Độ Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin</div></div>
+    <div class="card-b">
+      <div class="notice n-info" style="margin-bottom:12px"><span>ℹ️</span> Mẫu phiếu theo dõi nhiệt độ theo <b>SOP.VC.7</b> — Bệnh viện Đà Nẵng, Khoa Dược. Ghi nhiệt độ 2 lần/ngày (sáng &amp; chiều), đủ 7 ngày/tuần kể cả ngày nghỉ.</div>
+      <div class="fr2" style="margin-bottom:10px">
+        <div class="f"><label>Tủ vắc xin số</label><input class="inp" id="ptd-tuSo" placeholder="VD: 01, 02..."></div>
+        <div class="f"><label>Tháng / Năm</label><input class="inp" id="ptd-thang" placeholder="VD: 06/2026"></div>
+      </div>
+      <div class="fr2" style="margin-bottom:10px">
+        <div class="f"><label>Tên kho / vị trí</label><input class="inp" id="ptd-kho" placeholder="VD: Kho vắc xin A"></div>
+        <div class="f"><label>Quy định nhiệt độ</label>
+          <div class="tg">
+            <button class="tgo fr-on" id="ptd-mode-fr" onclick="setPtdMode('fridge')">❄️ Tủ lạnh (2°C – 8°C)</button>
+            <button class="tgo" id="ptd-mode-rm" onclick="setPtdMode('room')">🏭 Kho thường (18–25°C)</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-blue" onclick="renderPtd()">🔄 Tạo phiếu</button>
+        <button class="btn btn-green" onclick="printPtd()">🖨️ In phiếu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A4 Preview -->
+  <div class="card">
+    <div class="card-h"><div class="card-t">🖨️ Xem trước — Phiếu Theo Dõi Nhiệt Độ (A4)</div></div>
+    <div class="card-b" style="padding:12px">
+      <div class="a4-wrap" id="aw-ptd">
+        <div class="a4-wrap-header" style="color:rgba(255,255,255,.7)">📋 Phiếu theo dõi theo SOP.VC.7</div>
+        <div class="a4-scroll" id="ptd-scroll">
+          <div class="a4-scaler" id="ptd-scaler">
+            <div class="a4-page" id="ptd-page">
+              <div class="a4-empty"><div style="font-size:32px;opacity:.3">📋</div><div>Nhập thông tin và nhấn "Tạo phiếu" để xem trước</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /p-ptd -->
+
+</main>
+</div><!-- /shell -->
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb active" id="nb-dev" onclick="showPanel('p-dev')"><div class="ni">🏷️</div><div class="nl">Thiết bị</div></button>
+  <button class="nb" id="nb-dat" onclick="showPanel('p-dat')"><div class="ni">📊</div><div class="nl">Dữ liệu</div></button>
+  <button class="nb" id="nb-rpt" onclick="showPanel('p-rpt');setTimeout(renderPreviews,100)"><div class="ni">📄</div><div class="nl">Báo cáo</div></button>
+  <button class="nb" id="nb-ptd" onclick="showPanel('p-ptd')"><div class="ni">📋</div><div class="nl">Phiếu TDõi</div></button>
+</nav>
+
+</div><!-- /zr -->
+
+<!-- DEVICE MODAL -->
+<div class="mo" id="dev-mo">
+  <div class="mo-box">
+    <div class="mo-t" id="mo-title">➕ Thêm thiết bị</div>
+    <div class="f" style="margin-bottom:10px">
+      <label>Chế độ kho</label>
+      <div class="tg">
+        <button class="tgo on" id="mo-n" onclick="setMoMode('normal')">🏭 Kho thường (18–25°C)</button>
+        <button class="tgo" id="mo-f" onclick="setMoMode('fridge')">❄️ Tủ lạnh (3–7°C)</button>
+      </div>
+    </div>
+    <div class="f" style="margin-bottom:10px"><label>Tên kho / vị trí</label><input class="inp" id="mo-kname" placeholder="VD: Kho vắc xin A"></div>
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="f"><label>Serial Number</label><input class="inp" id="mo-ser" placeholder="EFG24A104453"></div>
+      <div class="f"><label>Device Model</label><input class="inp" id="mo-mod" placeholder="GSP-6"></div>
+    </div>
+    <div class="f" style="margin-bottom:10px"><label>Trip Description</label><input class="inp" id="mo-trip" placeholder="GSP-6 temperature & humidity Data Logger"></div>
+    <div class="fr4" style="margin-bottom:10px">
+      <div class="f"><label>H1 cao (°C)</label><input type="number" class="inp" id="mo-H" step="0.1" value="8.0"></div>
+      <div class="f"><label>L1 thấp (°C)</label><input type="number" class="inp" id="mo-L" step="0.1" value="2.0"></div>
+      <div class="f"><label>HH ẩm cao (%)</label><input type="number" class="inp" id="mo-HH" step="0.1" value="100.0"></div>
+      <div class="f"><label>HL ẩm thấp (%)</label><input type="number" class="inp" id="mo-HL" step="0.1" value="10.0"></div>
+    </div>
+    <div class="mo-f">
+      <button class="btn btn-ghost" onclick="closeDev()">Huỷ</button>
+      <button class="btn btn-blue" style="flex:2" onclick="saveDev()">💾 Lưu</button>
+      <button class="btn btn-danger btn-sm" id="mo-del" onclick="delDev()" style="display:none">🗑️</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div id="dlm">
+  <div class="dlsh">
+    <div class="dl-hd"></div>
+    <div class="dl-t" id="dl-t">Tải file</div>
+    <div class="dl-s" id="dl-s">Nhấn và giữ → chọn "Tải về"</div>
+    <a id="dl-a" href="#" download class="dl-a"><span id="dl-ico">⬇️</span><span id="dl-fn">file.xlsx</span></a>
+    <button onclick="closeDL()" class="btn btn-ghost" style="width:100%">Đóng</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// ZOOM & LAYOUT
+// ══════════════════════════════════════════════════════
+let cMode='mobile', cZoom=1;
+function initLayout(){
+  const sm=localStorage.getItem('nk-mode'),sz=parseFloat(localStorage.getItem('nk-zoom')||'1');
+  cZoom=isNaN(sz)?1:Math.max(.5,Math.min(2,sz));
+  const m=sm||(window.innerWidth>=920?'pc':'mobile');
+  applyMode(m); applyZoom(cZoom);
+}
+function applyMode(m){
+  cMode=m; document.body.className=m+'-layout';
+  localStorage.setItem('nk-mode',m);
+  document.getElementById('mico').textContent=m==='pc'?'📱':'🖥️';
+  document.getElementById('mlbl').textContent=m==='pc'?'Mobile':'PC';
+}
+function toggleMode(){applyMode(cMode==='mobile'?'pc':'mobile');setTimeout(scaleAll,100)}
+function applyZoom(z){
+  cZoom=Math.round(z*10)/10; cZoom=Math.max(.5,Math.min(2,cZoom));
+  const r=document.getElementById('zr');
+  r.style.transform=`scale(${cZoom})`; r.style.transformOrigin='top left';
+  r.style.width=`${100/cZoom}%`; r.style.minHeight=`${100/cZoom}vh`;
+  const p=Math.round(cZoom*100)+'%';
+  document.getElementById('zlbl').textContent=p;
+  const z2=document.getElementById('zlbl2'); if(z2) z2.textContent=p;
+  localStorage.setItem('nk-zoom',cZoom);
+  setTimeout(scaleAll,80);
+}
+function adjZ(d){applyZoom(cZoom+d)} function resetZ(){applyZoom(1)}
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey){
+    if(e.key==='='||e.key==='+'){e.preventDefault();adjZ(.1)}
+    else if(e.key==='-'){e.preventDefault();adjZ(-.1)}
+    else if(e.key==='0'){e.preventDefault();resetZ()}
+  }
+});
+
+// ══════════════════════════════════════════════════════
+// PANELS
+// ══════════════════════════════════════════════════════
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const nbMap={'p-dev':'nb-dev','p-dat':'nb-dat','p-rpt':'nb-rpt','p-ptd':'nb-ptd'};
+  const sbMap={'p-dev':'sb-dev','p-dat':'sb-dat','p-rpt':'sb-rpt','p-ptd':'sb-ptd'};
+  const nb=document.getElementById(nbMap[id]); if(nb)nb.classList.add('active');
+  const sb=document.getElementById(sbMap[id]); if(sb)sb.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════════
+// DEVICE MEMORY
+// ══════════════════════════════════════════════════════
+const SK='nk-devices';
+let devices=[], editId=null, selId=null, kFilter='all', moMode='fridge';
+const DEFS=[
+  {id:'d1',khoName:'Kho thuốc chính',serial:'EFG24A200001',model:'GSP-6',trip:'GSP-6 temperature & humidity Data Logger — Kho thuốc chính',mode:'normal',alarmH:30,alarmL:15,alarmHH:75,alarmHL:60},
+  {id:'d2',khoName:'Kho vắc xin tổng',serial:'EFG24A200002',model:'GSP-6',trip:'GSP-6 temperature & humidity Data Logger — Kho vắc xin tổng',mode:'normal',alarmH:30,alarmL:15,alarmHH:75,alarmHL:60},
+  {id:'d3',khoName:'Tủ lạnh vắc xin 1',serial:'EFG24A104453',model:'GSP-6',trip:'GSP-6 temperature & humidity Data Logger',mode:'fridge',alarmH:8,alarmL:2,alarmHH:100,alarmHL:10},
+  {id:'d4',khoName:'Tủ lạnh vắc xin 2',serial:'EFG24A104454',model:'RC-4',trip:'RC-4 temperature & humidity Data Logger',mode:'fridge',alarmH:8,alarmL:2,alarmHH:100,alarmHL:10},
+  {id:'d5',khoName:'Tủ lạnh sinh phẩm',serial:'EFG24B301001',model:'RC-4',trip:'RC-4 temperature & humidity Data Logger — Sinh phẩm',mode:'fridge',alarmH:8,alarmL:2,alarmHH:100,alarmHL:10},
+];
+function loadDevs(){try{const s=localStorage.getItem(SK);devices=s?JSON.parse(s):DEFS;}catch{devices=DEFS;}}
+function saveDevs(){localStorage.setItem(SK,JSON.stringify(devices));}
+
+function renderDG(){
+  const grid=document.getElementById('dg');
+  const list=kFilter==='all'?devices:devices.filter(d=>d.mode===kFilter);
+  let h='';
+  list.forEach(d=>{
+    const fr=d.mode==='fridge',sel=d.id===selId;
+    h+=`<div class="dc${fr?' fr':''}${sel?' sel':''}" onclick="selDev('${d.id}')">
+      <button class="dc-ed" onclick="event.stopPropagation();openDev('${d.id}')">✏️</button>
+      <div class="dc-n">${d.khoName}</div>
+      <div class="dc-s">${d.serial} · ${d.model}</div>
+      <span class="dc-tag${fr?' c':''}">${fr?'❄️ Tủ lạnh':'🏭 Kho thường'}</span>
+    </div>`;
+  });
+  h+=`<div class="dc add" onclick="openDev(null)"><span style="font-size:18px">＋</span>Thêm thiết bị</div>`;
+  grid.innerHTML=h;
+}
+function filterK(k){
+  kFilter=k;
+  document.querySelectorAll('.ktab').forEach(t=>t.classList.toggle('active',t.dataset.k===k));
+  renderDG();
+}
+function selDev(id){
+  selId=id; renderDG();
+  const d=devices.find(x=>x.id===id); if(!d)return;
+  document.getElementById('serial').value=d.serial;
+  document.getElementById('model').value=d.model;
+  document.getElementById('tripDesc').value=d.trip;
+  document.getElementById('alarmH').value=d.alarmH;
+  document.getElementById('alarmL').value=d.alarmL;
+  document.getElementById('alarmHH').value=d.alarmHH;
+  document.getElementById('alarmHL').value=d.alarmHL;
+  document.getElementById('sel-notice').classList.add('hidden');
+  document.getElementById('cfg-form').classList.remove('hidden');
+  const b=document.getElementById('sel-banner'),t=document.getElementById('sel-txt');
+  t.innerHTML=`✅ <strong>${d.khoName}</strong> · ${d.serial} · ${d.model} · ${d.mode==='fridge'?'❄️ Tủ lạnh':'🏭 Kho thường'}`;
+  b.classList.remove('hidden');
+}
+function openDev(id){
+  editId=id; const d=id?devices.find(x=>x.id===id):null;
+  document.getElementById('mo-title').textContent=d?'✏️ Sửa thiết bị':'➕ Thêm thiết bị';
+  document.getElementById('mo-del').style.display=d?'':'none';
+  setMoMode(d?d.mode:'fridge');
+  document.getElementById('mo-kname').value=d?d.khoName:'';
+  document.getElementById('mo-ser').value=d?d.serial:'';
+  document.getElementById('mo-mod').value=d?d.model:'GSP-6';
+  document.getElementById('mo-trip').value=d?d.trip:'';
+  document.getElementById('mo-H').value=d?d.alarmH:(moMode==='fridge'?8:30);
+  document.getElementById('mo-L').value=d?d.alarmL:(moMode==='fridge'?2:15);
+  document.getElementById('mo-HH').value=d?d.alarmHH:100;
+  document.getElementById('mo-HL').value=d?d.alarmHL:10;
+  document.getElementById('dev-mo').classList.add('open');
+}
+function closeDev(){document.getElementById('dev-mo').classList.remove('open')}
+function setMoMode(m){
+  moMode=m;
+  document.getElementById('mo-n').classList.toggle('on',m==='normal');
+  document.getElementById('mo-f').classList.toggle('on',m==='fridge');
+  document.getElementById('mo-f').classList.toggle('fr-on',m==='fridge');
+  if(!editId){
+    document.getElementById('mo-H').value=m==='fridge'?8:30;
+    document.getElementById('mo-L').value=m==='fridge'?2:15;
+    document.getElementById('mo-HH').value=100;
+    document.getElementById('mo-HL').value=m==='fridge'?10:60;
+  }
+}
+function saveDev(){
+  const kn=document.getElementById('mo-kname').value.trim();
+  const sr=document.getElementById('mo-ser').value.trim();
+  if(!kn||!sr){alert('Nhập tên kho và serial number');return;}
+  const mod=document.getElementById('mo-mod').value.trim()||'GSP-6';
+  const trip=document.getElementById('mo-trip').value.trim()||`${mod} temperature & humidity Data Logger`;
+  const d={id:editId||'d'+Date.now(),khoName:kn,serial:sr,model:mod,trip,mode:moMode,
+    alarmH:parseFloat(document.getElementById('mo-H').value),
+    alarmL:parseFloat(document.getElementById('mo-L').value),
+    alarmHH:parseFloat(document.getElementById('mo-HH').value),
+    alarmHL:parseFloat(document.getElementById('mo-HL').value)};
+  if(editId){const i=devices.findIndex(x=>x.id===editId);if(i>=0)devices[i]=d;}
+  else devices.push(d);
+  saveDevs(); closeDev(); renderDG();
+  if(selId===d.id)selDev(d.id);
+}
+function delDev(){
+  if(!editId||!confirm('Xoá thiết bị này?'))return;
+  devices=devices.filter(x=>x.id!==editId);
+  if(selId===editId){selId=null;document.getElementById('sel-notice').classList.remove('hidden');document.getElementById('cfg-form').classList.add('hidden');}
+  saveDevs(); closeDev(); renderDG();
+}
+document.getElementById('dev-mo').addEventListener('click',function(e){if(e.target===this)closeDev()});
+
+// ══════════════════════════════════════════════════════
+// DATA SOURCE
+// ══════════════════════════════════════════════════════
+let curSrc='auto', fileData=null, rows=[];
+function setSrc(s){
+  curSrc=s;
+  document.getElementById('src-auto').classList.toggle('on',s==='auto');
+  document.getElementById('src-file').classList.toggle('on',s==='file');
+  document.getElementById('pan-auto').classList.toggle('hidden',s!=='auto');
+  document.getElementById('pan-file').classList.toggle('hidden',s!=='file');
+}
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0])});
+document.getElementById('fi').addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
+function loadFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const raw=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+      let hi=-1;
+      for(let i=0;i<Math.min(raw.length,10);i++){
+        const r=raw[i].map(c=>(c||'').toString().toLowerCase());
+        if(r.some(c=>c.includes('time')||c.includes('thời'))){hi=i;break;}
+      }
+      if(hi===-1)hi=2;
+      const hdrs=raw[hi].map(c=>(c||'').toString().toLowerCase());
+      const tC=hdrs.findIndex(c=>c.includes('time')||c.includes('thời'));
+      const tempC=hdrs.findIndex(c=>c.includes('temp'));
+      const humC=hdrs.findIndex(c=>c.includes('hum')||c.includes('rh')||c.includes('%'));
+      const parsed=[];
+      for(let i=hi+1;i<raw.length;i++){
+        const row=raw[i];
+        const tRaw=(row[tC]||'').toString().trim();
+        const temp=parseFloat(row[tempC]);
+        if(!tRaw||isNaN(temp))continue;
+        const d=new Date(tRaw);
+        if(isNaN(d))continue;
+        const hum=humC>=0?parseFloat(row[humC]):null;
+        parsed.push({ts:d,temp,hum});
+      }
+      if(!parsed.length){alert('Không đọc được dữ liệu');return;}
+      fileData=parsed; dz.classList.add('ok');
+      const fn=document.getElementById('dzfn');
+      fn.textContent='✓ '+file.name+' — '+parsed.length+' dòng'; fn.classList.remove('hidden');
+      const n=document.getElementById('fi-notice');
+      n.textContent=`✅ ${parsed.length} bản ghi · ${fmtTS(parsed[0].ts)} → ${fmtTS(parsed[parsed.length-1].ts)}`;
+      n.classList.remove('hidden');
+    }catch(err){alert('Lỗi: '+err.message);}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+function r1(a,b){return parseFloat((Math.random()*(b-a)+a).toFixed(1))}
+function pad(n){return String(n).padStart(2,'0')}
+function fmtTS(d){return pad(d.getFullYear())+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+function fmtDisp(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+function getCfg(){
+  const d=selId?devices.find(x=>x.id===selId):null;
+  return{
+    serial:document.getElementById('serial').value.trim()||(d&&d.serial)||'N/A',
+    model:document.getElementById('model').value.trim()||(d&&d.model)||'GSP-6',
+    tripDesc:document.getElementById('tripDesc').value.trim()||(d&&d.trip)||'',
+    alarmH:parseFloat(document.getElementById('alarmH').value||8),
+    alarmL:parseFloat(document.getElementById('alarmL').value||2),
+    alarmHH:parseFloat(document.getElementById('alarmHH').value||100),
+    alarmHL:parseFloat(document.getElementById('alarmHL').value||10),
+    mode:(d&&d.mode)||'fridge',
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// GENERATE
+// ══════════════════════════════════════════════════════
+function generate(){
+  document.getElementById('err-box').classList.add('hidden');
+  document.getElementById('result-quick').classList.add('hidden');
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true; btn.textContent='⏳ Đang xử lý…';
+  setTimeout(()=>{
+    try{
+      rows=curSrc==='auto'?genAuto():genFile();
+      if(!rows||!rows.length){showErr('Không có dữ liệu');return;}
+      renderQuick(); document.getElementById('result-quick').classList.remove('hidden');
+    }catch(e){showErr(e.message);}
+    finally{btn.disabled=false;btn.innerHTML='⚙️ Tạo &amp; xem trước dữ liệu';}
+  },50);
+}
+function showErr(m){const b=document.getElementById('err-box');b.textContent='⚠️ '+m;b.classList.remove('hidden')}
+function resetAll(){document.getElementById('result-quick').classList.add('hidden');document.getElementById('err-box').classList.add('hidden');rows=[]}
+
+function genAuto(){
+  const cfg=getCfg();
+  const s=new Date(document.getElementById('dtStart').value);
+  const e=new Date(document.getElementById('dtEnd').value);
+  if(isNaN(s)||isNaN(e))throw new Error('Chọn ngày bắt đầu và kết thúc');
+  if(e<=s)throw new Error('Ngày kết thúc phải sau bắt đầu');
+  const fn=cfg.mode==='normal',tMn=fn?18:3,tMx=fn?25:7,hMn=fn?60:98,hMx=fn?75:100;
+  const delta=r1(2,4),bMin=r1(tMn,tMx-delta),bMax=parseFloat((bMin+delta).toFixed(1));
+  const res=[]; let pT=r1((bMin+bMax)/2-.5,(bMin+bMax)/2+.5),pH=r1((hMn+hMx)/2-1,(hMn+hMx)/2+1);
+  for(let t=new Date(s);t<=e;t=new Date(t.getTime()+15*60000)){
+    pT=Math.max(bMin,Math.min(bMax,parseFloat((pT+r1(-.4,.4)).toFixed(1))));
+    pH=Math.max(hMn,Math.min(hMx,parseFloat((pH+r1(-.5,.5)).toFixed(1))));
+    res.push({ts:new Date(t),temp:pT,hum:pH});
+  }
+  if(res.length>4){res[Math.floor(res.length*.3)].temp=bMin;res[Math.floor(res.length*.7)].temp=bMax;}
+  return res;
+}
+function genFile(){
+  if(!fileData)throw new Error('Chọn file dữ liệu đầu vào');
+  let r=fileData;
+  const fv=document.getElementById('fFrom').value,tv=document.getElementById('fTo').value;
+  if(fv){const d=new Date(fv);r=r.filter(x=>x.ts>=d);}
+  if(tv){const d=new Date(tv);d.setHours(23,59,59);r=r.filter(x=>x.ts<=d);}
+  const cfg=getCfg(),fn=cfg.mode==='normal',hMn=fn?60:98,hMx=fn?75:100;
+  return r.map(x=>({ts:x.ts,temp:x.temp,hum:x.hum!=null&&!isNaN(x.hum)?x.hum:r1(hMn,hMx)}));
+}
+
+function renderQuick(){
+  const temps=rows.map(r=>r.temp),hums=rows.map(r=>r.hum);
+  const minT=Math.min(...temps).toFixed(1),maxT=Math.max(...temps).toFixed(1);
+  const avgT=(temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1);
+  const minH=Math.min(...hums).toFixed(1),maxH=Math.max(...hums).toFixed(1);
+  document.getElementById('sg').innerHTML=[
+    {v:rows.length,l:'Bản ghi'},{v:minT+'°C',l:'T thấp'},{v:maxT+'°C',l:'T cao'},
+    {v:avgT+'°C',l:'T TB'},{v:minH+'%',l:'Ẩm thấp'},{v:maxH+'%',l:'Ẩm cao'},
+  ].map(x=>`<div class="st"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('');
+  const s=rows[0].ts,e=rows[rows.length-1].ts;
+  const rn=document.getElementById('rng-notice');
+  rn.textContent=`📅 ${fmtDisp(s)} → ${fmtDisp(e)}`;rn.classList.remove('hidden');
+  const prev=rows.slice(0,50);
+  document.getElementById('prev-tbl').innerHTML=
+    `<thead><tr><th>No.</th><th>Time</th><th>Temp °C</th><th>Hum %</th></tr></thead>
+    <tbody>${prev.map((r,i)=>`<tr><td>${i+1}</td><td>${fmtTS(r.ts)}</td><td style="text-align:center">${r.temp}</td><td style="text-align:center">${r.hum}</td></tr>`).join('')}</tbody>`;
+}
+
+// ══════════════════════════════════════════════════════
+// STATS HELPER
+// ══════════════════════════════════════════════════════
+function getStats(){
+  const cfg=getCfg();
+  const temps=rows.map(r=>r.temp),hums=rows.map(r=>r.hum);
+  const maxT=parseFloat(Math.max(...temps).toFixed(1)),minT=parseFloat(Math.min(...temps).toFixed(1));
+  const avgT=parseFloat((temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1));
+  const maxH=parseFloat(Math.max(...hums).toFixed(1)),minH=parseFloat(Math.min(...hums).toFixed(1));
+  const avgH=parseFloat((hums.reduce((a,b)=>a+b,0)/hums.length).toFixed(1));
+  const s=fmtTS(rows[0].ts),e=fmtTS(rows[rows.length-1].ts);
+  const now=fmtTS(new Date()),total=rows.length;
+  const ms=rows[rows.length-1].ts-rows[0].ts;
+  const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);
+  const dur=`${d}d ${h}h ${m}m`;
+  const tA=temps.some(t=>t>cfg.alarmH||t<cfg.alarmL),hA=hums.some(h=>h>cfg.alarmHH||h<cfg.alarmHL);
+  return{...cfg,maxT,minT,avgT,maxH,minH,avgH,startT:s,stopT:e,now,total,dur,tA,hA};
+}
+function getDailyStats(cfg){
+  const byDate={};
+  rows.forEach(r=>{
+    const dk=pad(r.ts.getFullYear())+'-'+pad(r.ts.getMonth()+1)+'-'+pad(r.ts.getDate());
+    if(!byDate[dk])byDate[dk]={temps:[],hums:[]};
+    byDate[dk].temps.push(r.temp);byDate[dk].hums.push(r.hum);
+  });
+  return Object.entries(byDate).sort().map(([date,d])=>{
+    const tMn=parseFloat(Math.min(...d.temps).toFixed(1)),tMx=parseFloat(Math.max(...d.temps).toFixed(1));
+    const tAv=parseFloat((d.temps.reduce((a,b)=>a+b,0)/d.temps.length).toFixed(1));
+    const hMn=parseFloat(Math.min(...d.hums).toFixed(1)),hMx=parseFloat(Math.max(...d.hums).toFixed(1));
+    const hAv=parseFloat((d.hums.reduce((a,b)=>a+b,0)/d.hums.length).toFixed(1));
+    return{date,tMn,tMx,tAv,hMn,hMx,hAv,tOk:tMn>=cfg.alarmL&&tMx<=cfg.alarmH,hOk:hMn>=cfg.alarmHL&&hMx<=cfg.alarmHH};
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// A4 PREVIEW — ELITECH CLONE
+// ══════════════════════════════════════════════════════
+let eliPages=[]; // array of HTML strings for each page
+let curEliPage=0;
+
+function buildElitechPages(s,daily){
+  const pages=[];
+
+  // PAGE 1: Device info + Alarm + Summary + Chart
+  pages.push(buildEliPage1(s,daily));
+
+  // DATA PAGES: elitech style — dense multi-column layout
+  const COLS=6; // columns per page
+  const ROWS_PER_COL=100; // rows per column
+  const ROWS_PER_PAGE=COLS*ROWS_PER_COL;
+  
+  for(let p=0;p<Math.ceil(rows.length/ROWS_PER_PAGE);p++){
+    const startIdx=p*ROWS_PER_PAGE;
+    const endIdx=Math.min(startIdx+ROWS_PER_PAGE,rows.length);
+    const pageRows=rows.slice(startIdx,endIdx);
+    pages.push(buildEliDataPage(pageRows,p+2,pages.length+2,s,startIdx,endIdx));
+  }
+  return pages;
+}
+
+function buildEliPage1(s,daily){
+  const tOkColor=s.tA?'#dc2626':'#16a34a';
+  const hOkColor=s.hA?'#dc2626':'#16a34a';
+  const tOkTxt=s.tA?'⚠️ ALARM':'Ok';
+  const hOkTxt=s.hA?'⚠️ ALARM':'Ok';
+
+  // Build mini chart SVG
+  const chartSVG=buildChartSVG(s);
+
+  return `<div class="eli-wrap">
+  <!-- Header -->
+  <div class="eli-hdr">
+    <div class="eli-brand">
+      <div class="eli-logo">🌡️</div>
+      <div class="eli-brand-text">
+        <div class="t1" style="font-family:Arial;font-size:18pt;font-weight:900;color:#1a3a5c;font-style:italic">Data Report</div>
+        <div class="t2">File created on: ${s.now}</div>
+      </div>
+    </div>
+    <div class="eli-hdr-right">
+      <div style="font-size:22pt;color:#27ae60;font-weight:900">✓OK</div>
+      <div class="dr" style="font-size:8pt;color:#555">www.e-elitech.com</div>
+    </div>
+  </div>
+
+  <!-- Device Info -->
+  <div class="eli-section">
+    <div class="eli-section-title">Device Information</div>
+    <table class="eli-tbl" style="margin-bottom:0">
+      <tr><td class="lbl">Device Model:</td><td>${s.model}</td><td class="lbl2">Probe Type:</td><td>Temperature &amp; Humidity</td></tr>
+      <tr><td class="lbl">Serial Number:</td><td>${s.serial}</td><td class="lbl2">Firmware Version:</td><td>V3.1</td></tr>
+      <tr><td class="lbl">Total Space:</td><td>16000</td><td></td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- Trip Description -->
+  <div class="eli-section">
+    <div class="eli-section-title">Trip Description</div>
+    <table class="eli-tbl" style="margin-bottom:0">
+      <tr><td class="lbl">Trip Number:</td><td colspan="3">N/A</td></tr>
+      <tr><td class="lbl">Trip Description:</td><td colspan="3">${s.tripDesc}</td></tr>
+    </table>
+  </div>
+
+  <!-- Config Info -->
+  <div class="eli-section">
+    <div class="eli-section-title">Config. info</div>
+    <table class="eli-tbl" style="margin-bottom:0">
+      <tr><td class="lbl">Button Stop:</td><td>Enable</td><td class="lbl2">Logging Interval:</td><td>15m</td></tr>
+      <tr><td class="lbl">Mute Button:</td><td>Enable</td><td class="lbl2">Alarm Logging Interval Shorten (1 min):</td><td>Disable</td></tr>
+      <tr><td class="lbl">Alarm Tone:</td><td>3 times</td><td class="lbl2">Storage Mode:</td><td>Stop when full</td></tr>
+    </table>
+  </div>
+
+  <!-- Alarm Threshold -->
+  <div class="eli-section">
+    <table class="eli-alarm-tbl" style="margin-bottom:0">
+      <tr><th colspan="3">Alarm Threshold</th><th colspan="2">Alarm Status</th></tr>
+      <tr><td>H1: Above: ${s.alarmH}°C</td><td></td><td></td><td><span style="color:${tOkColor};font-weight:700">${tOkTxt}</span></td><td></td></tr>
+      <tr><td colspan="3" style="color:#777;font-size:8pt">Ideal Zone: Unlimited</td><td></td><td></td></tr>
+      <tr><td>L1: Below: ${s.alarmL}°C</td><td></td><td></td><td><span style="color:${tOkColor};font-weight:700">${tOkTxt}</span></td><td></td></tr>
+      <tr><td style="padding-top:5px">HH: Above: ${s.alarmHH}%</td><td></td><td></td><td><span style="color:${hOkColor};font-weight:700">${hOkTxt}</span></td><td></td></tr>
+      <tr><td colspan="3" style="color:#777;font-size:8pt">Ideal Zone: Unlimited</td><td></td><td></td></tr>
+      <tr><td>HL: Below: ${s.alarmHL}%</td><td></td><td></td><td><span style="color:${hOkColor};font-weight:700">${hOkTxt}</span></td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- Summary -->
+  <div class="eli-section">
+    <div class="eli-section-title">Summary</div>
+    <table class="eli-tbl" style="margin-bottom:0">
+      <tr><td class="lbl">Maximum:</td><td>${s.maxT}°C / ${s.maxH}%</td><td class="lbl2">Start Time:</td><td>${s.startT}</td></tr>
+      <tr><td class="lbl">Minimum:</td><td>${s.minT}°C / ${s.minH}%</td><td class="lbl2">Stop Time:</td><td>${s.stopT}</td></tr>
+      <tr><td class="lbl">Average:</td><td>${s.avgT}°C / ${s.avgH}%</td><td class="lbl2">Logging Duration:</td><td>${s.dur}</td></tr>
+      <tr><td class="lbl">MKT:</td><td>${s.avgT}°C</td><td class="lbl2">Total Memory:</td><td>${s.total}</td></tr>
+      <tr><td class="lbl">Alarm Time(Te):</td><td>N/A</td><td class="lbl2">Current Readings:</td><td>${s.total}</td></tr>
+      <tr><td class="lbl">Alarm Time(Humidity):</td><td>N/A</td><td></td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- Chart -->
+  <div class="eli-section">
+    <div class="eli-chart-area">
+      <div class="eli-chart-title">
+        <div class="eli-chart-legend">
+          <span><span style="display:inline-block;width:20px;height:2px;background:#1a3a5c;vertical-align:middle"></span> Temperature°C</span>
+          <span><span style="display:inline-block;width:20px;height:2px;background:#27ae60;vertical-align:middle;border-top:2px dashed #27ae60"></span> Fault</span>
+          <span style="margin-left:auto"><span style="display:inline-block;width:20px;height:2px;background:#e74c3c;vertical-align:middle"></span> Humidity%</span>
+        </div>
+      </div>
+      ${chartSVG}
+    </div>
+  </div>
+
+  <div class="eli-footer">
+    <span>Data Report File created on: ${s.now}</span>
+    <span>www.e-elitech.com &nbsp;&nbsp; File Name: ${s.serial}_</span>
+  </div>
+</div>`;
+}
+
+function buildChartSVG(s){
+  if(!rows.length)return '';
+  const W=722,H=180;
+  // Downsample for SVG performance
+  const step=Math.max(1,Math.floor(rows.length/200));
+  const pts=rows.filter((_,i)=>i%step===0);
+  if(pts.length<2)return '';
+  
+  const temps=pts.map(r=>r.temp),hums=pts.map(r=>r.hum);
+  const tMin=Math.min(...temps),tMax=Math.max(...temps);
+  const hMin=Math.min(...hums),hMax=Math.max(...hums);
+  const tRange=tMax-tMin||1,hRange=hMax-hMin||1;
+  const PAD={l:35,r:40,t:10,b:30};
+  const CW=W-PAD.l-PAD.r,CH=H-PAD.t-PAD.b;
+  
+  const tx=i=>PAD.l+i/(pts.length-1)*CW;
+  const ty=v=>PAD.t+CH-(v-tMin)/tRange*CH;
+  const hy=v=>PAD.t+CH-(v-hMin)/hRange*CH;
+  
+  const tPath=pts.map((r,i)=>`${i===0?'M':'L'}${tx(i).toFixed(1)},${ty(r.temp).toFixed(1)}`).join(' ');
+  const hPath=pts.map((r,i)=>`${i===0?'M':'L'}${tx(i).toFixed(1)},${hy(r.hum).toFixed(1)}`).join(' ');
+  
+  // X axis labels (dates)
+  const totalDays=Math.ceil((rows[rows.length-1].ts-rows[0].ts)/86400000);
+  const labelStep=Math.max(1,Math.floor(totalDays/10));
+  const xLabels=[];
+  let prevDate='';
+  pts.forEach((r,i)=>{
+    const dk=pad(r.ts.getFullYear())+'-'+pad(r.ts.getMonth()+1)+'-'+pad(r.ts.getDate());
+    if(dk!==prevDate){prevDate=dk;xLabels.push({i,label:dk.substring(5)});}
+  });
+  const xLabelsSel=xLabels.filter((_,i)=>i%labelStep===0).slice(0,11);
+  
+  // Y axis T labels
+  const tStep=(tMax-tMin)/4||1;
+  const tYLabels=Array.from({length:5},(_,i)=>tMin+tStep*i);
+  const hStep=(hMax-hMin)/4||1;
+  const hYLabels=Array.from({length:5},(_,i)=>hMin+hStep*i);
+  
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;font-family:Arial">
+    <rect x="${PAD.l}" y="${PAD.t}" width="${CW}" height="${CH}" fill="#f9fbfd" stroke="#ddd" stroke-width="0.5"/>
+    <!-- Grid -->
+    ${Array.from({length:5},(_,i)=>{const y=PAD.t+CH/4*i;return`<line x1="${PAD.l}" y1="${y.toFixed(1)}" x2="${PAD.l+CW}" y2="${y.toFixed(1)}" stroke="#e5e7eb" stroke-width="0.5"/>`;}).join('')}
+    <!-- T axis left -->
+    ${tYLabels.map(v=>`<text x="${PAD.l-3}" y="${(ty(v)+3).toFixed(1)}" text-anchor="end" font-size="7" fill="#444">${v.toFixed(1)}</text>`).join('')}
+    <!-- H axis right -->
+    ${hYLabels.map(v=>`<text x="${PAD.l+CW+3}" y="${(hy(v)+3).toFixed(1)}" text-anchor="start" font-size="7" fill="#e74c3c">${v.toFixed(1)}</text>`).join('')}
+    <!-- H line (red) -->
+    <path d="${hPath}" stroke="#e74c3c" stroke-width="0.8" fill="none" opacity="0.7"/>
+    <!-- T line (dark blue) -->
+    <path d="${tPath}" stroke="#1a3a5c" stroke-width="1.2" fill="none"/>
+    <!-- X labels -->
+    ${xLabelsSel.map(({i,label})=>{
+      const x=tx(i);
+      const [m,d]=label.split('-');
+      return`<text x="${x.toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="6.5" fill="#555">${pad(parseInt(m))}-${pad(parseInt(d))}</text>
+      <line x1="${x.toFixed(1)}" y1="${PAD.t}" x2="${x.toFixed(1)}" y2="${(PAD.t+CH).toFixed(1)}" stroke="#ddd" stroke-width="0.3"/>`;
+    }).join('')}
+    <!-- T axis label -->
+    <text x="${PAD.l-5}" y="${PAD.t-2}" font-size="7" fill="#1a3a5c" text-anchor="end">Time</text>
+    <text x="${PAD.l+CW}" y="${PAD.t-2}" font-size="7" fill="#e74c3c" text-anchor="end">Humidity%</text>
+  </svg>`;
+}
+
+function buildEliDataPage(pageRows,pageNum,totalPages,s,startIdx,endIdx){
+  const COLS=6;
+  const colSize=Math.ceil(pageRows.length/COLS);
+  const cols=Array.from({length:COLS},(_,c)=>pageRows.slice(c*colSize,(c+1)*colSize));
+  
+  // Build dense column table like real elitech PDF
+  let tbl='<table style="width:100%;border-collapse:collapse;font-size:6.5pt;font-family:\'Courier New\',monospace">';
+  tbl+=`<tr>`;
+  cols.forEach(_=>{tbl+=`<th style="background:#1a3a5c;color:#fff;padding:2pt 4pt;text-align:left;font-size:6.5pt;width:${100/COLS}%">Time &nbsp; Temp &nbsp; Hum</th>`;});
+  tbl+=`</tr>`;
+  
+  const maxRows=Math.max(...cols.map(c=>c.length));
+  let prevDates=Array(COLS).fill('');
+  
+  for(let r=0;r<maxRows;r++){
+    tbl+=`<tr>`;
+    cols.forEach((col,ci)=>{
+      if(r<col.length){
+        const row=col[r];
+        const dk=pad(row.ts.getFullYear())+'-'+pad(row.ts.getMonth()+1)+'-'+pad(row.ts.getDate());
+        const timeStr=pad(row.ts.getHours())+':'+pad(row.ts.getMinutes())+':'+pad(row.ts.getSeconds());
+        let cell='';
+        if(dk!==prevDates[ci]){
+          prevDates[ci]=dk;
+          cell=`<span style="display:block;font-weight:700;color:#1a3a5c;background:#dce8f5;margin-bottom:1px;font-size:6pt">${dk}</span>`;
+        }
+        const tAlarm=row.temp>s.alarmH||row.temp<s.alarmL;
+        const hAlarm=row.hum>s.alarmHH||row.hum<s.alarmHL;
+        cell+=`<span style="font-size:6.5pt">${timeStr} <span style="color:${tAlarm?'#dc2626':'#1a3a5c'};font-weight:${tAlarm?'700':'400'}">${row.temp.toFixed(1)}°C</span> <span style="color:${hAlarm?'#dc2626':'#555'}">${row.hum.toFixed(1)}%</span></span>`;
+        tbl+=`<td style="padding:1pt 3pt;border-bottom:0.3pt solid #eee;vertical-align:top">${cell}</td>`;
+      } else {
+        tbl+=`<td></td>`;
+      }
+    });
+    tbl+=`</tr>`;
+  }
+  tbl+='</table>';
+  
+  const fromTime=fmtTS(pageRows[0].ts);
+  const toTime=fmtTS(pageRows[pageRows.length-1].ts);
+  
+  return `<div class="eli-wrap" style="padding:20px 28px">
+    <div class="eli-data-hdr">
+      <span>From ${fromTime} to ${toTime}</span>
+      <span>File created on: ${s.now}</span>
+    </div>
+    ${tbl}
+    <div class="eli-footer" style="margin-top:6px">
+      <span>www.e-elitech.com</span>
+      <span>${pageNum}/${totalPages} &nbsp;&nbsp; File Name: ${s.serial}_</span>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// SUMMARY REPORT A4 PREVIEW (BV Đà Nẵng)
+// ══════════════════════════════════════════════════════
+function buildSummaryA4(s,daily){
+  const dailyRows=daily.map(d=>`<tr>
+    <td>${d.date}</td><td style="text-align:center">${d.tMn}</td><td style="text-align:center">${d.tMx}</td><td style="text-align:center">${d.tAv}</td>
+    <td style="text-align:center">${d.hMn}</td><td style="text-align:center">${d.hMx}</td><td style="text-align:center">${d.hAv}</td>
+    <td style="text-align:center;color:${d.tOk?'#14532d':'#991b1b'}">${d.tOk?'Đạt':'Không đạt'}</td>
+    <td style="text-align:center;color:${d.hOk?'#14532d':'#991b1b'}">${d.hOk?'Đạt':'Không đạt'}</td>
+  </tr>`).join('');
+  return`<div style="font-family:Arial,sans-serif;font-size:9pt;padding:28px 34px">
+  <div style="display:flex;justify-content:space-between;margin-bottom:12pt;font-size:8.5pt">
+    <div><div style="font-weight:700">BỆNH VIỆN ĐÀ NẴNG</div><div>KHOA DƯỢC</div><hr style="border-color:#1a3a5c;margin:3px 0"></div>
+    <div style="text-align:right"><div style="font-weight:700">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div><div>Độc lập – Tự do – Hạnh phúc</div><hr style="border-color:#1a3a5c;margin:3px 0"><div>Mã: ĐDNĐ.01</div></div>
+  </div>
+  <div style="text-align:center;font-size:13pt;font-weight:900;text-transform:uppercase;margin:10pt 0;color:#1a3a5c">Báo cáo kết quả theo dõi nhiệt độ - độ ẩm</div>
+  
+  <div style="font-size:8.5pt;font-weight:700;background:#1a3a5c;color:#fff;padding:3pt 8pt;margin-bottom:0">THÔNG TIN THIẾT BỊ</div>
+  <table style="width:100%;border-collapse:collapse;font-size:8.5pt;margin-bottom:8pt">
+    <tr style="background:#f0f5fb"><td style="font-weight:700;color:#1a3a5c;padding:3pt 7pt;border:0.5pt solid #ccc">Device Model</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">${s.model}</td><td style="font-weight:700;color:#1a3a5c;padding:3pt 7pt;border:0.5pt solid #ccc">Serial Number</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">${s.serial}</td></tr>
+    <tr><td style="font-weight:700;color:#1a3a5c;padding:3pt 7pt;border:0.5pt solid #ccc">Probe Type</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Temperature &amp; Humidity</td><td style="font-weight:700;color:#1a3a5c;padding:3pt 7pt;border:0.5pt solid #ccc">Logging Interval</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">15 phút</td></tr>
+    <tr style="background:#f0f5fb"><td style="font-weight:700;color:#1a3a5c;padding:3pt 7pt;border:0.5pt solid #ccc">Total Readings</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">${s.total}</td><td style="font-weight:700;color:#1a3a5c;padding:3pt 7pt;border:0.5pt solid #ccc">Logging Duration</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">${s.dur}</td></tr>
+    <tr><td colspan="4" style="padding:3pt 7pt;border:0.5pt solid #ccc"><b>Mô tả:</b> ${s.tripDesc}</td></tr>
+  </table>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;margin-bottom:8pt">
+    <div>
+      <div style="font-size:8.5pt;font-weight:700;background:#1a3a5c;color:#fff;padding:3pt 8pt;margin-bottom:0">CÀI ĐẶT CẢNH BÁO</div>
+      <table style="width:100%;border-collapse:collapse;font-size:8.5pt">
+        <tr><th style="background:#e8f0f8;padding:3pt 7pt;border:0.5pt solid #ccc;text-align:left">Loại</th><th style="background:#e8f0f8;padding:3pt 7pt;border:0.5pt solid #ccc;text-align:left">Ngưỡng</th><th style="background:#e8f0f8;padding:3pt 7pt;border:0.5pt solid #ccc;text-align:left">TT</th></tr>
+        <tr><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Nhiệt độ cao H1</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">&gt; ${s.alarmH}°C</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;color:${s.tA?'#dc2626':'#16a34a'};font-weight:700">${s.tA?'⚠️ CB':'✅ Ok'}</td></tr>
+        <tr style="background:#f5f7fa"><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Nhiệt độ thấp L1</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">&lt; ${s.alarmL}°C</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;color:${s.tA?'#dc2626':'#16a34a'};font-weight:700">${s.tA?'⚠️ CB':'✅ Ok'}</td></tr>
+        <tr><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Độ ẩm cao HH</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">&gt; ${s.alarmHH}%</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;color:${s.hA?'#dc2626':'#16a34a'};font-weight:700">${s.hA?'⚠️ CB':'✅ Ok'}</td></tr>
+        <tr style="background:#f5f7fa"><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Độ ẩm thấp HL</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc">&lt; ${s.alarmHL}%</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;color:${s.hA?'#dc2626':'#16a34a'};font-weight:700">${s.hA?'⚠️ CB':'✅ Ok'}</td></tr>
+      </table>
+    </div>
+    <div>
+      <div style="font-size:8.5pt;font-weight:700;background:#1a3a5c;color:#fff;padding:3pt 8pt;margin-bottom:0">THỐNG KÊ TỔNG HỢP</div>
+      <table style="width:100%;border-collapse:collapse;font-size:8.5pt">
+        <tr><th style="background:#e8f0f8;padding:3pt 7pt;border:0.5pt solid #ccc;text-align:left">Thông số</th><th style="background:#e8f0f8;padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center">Nhiệt độ (°C)</th><th style="background:#e8f0f8;padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center">Độ ẩm (%)</th></tr>
+        <tr><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Lớn nhất</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center;font-weight:700">${s.maxT}</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center;font-weight:700">${s.maxH}</td></tr>
+        <tr style="background:#f5f7fa"><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Nhỏ nhất</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center;font-weight:700">${s.minT}</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center;font-weight:700">${s.minH}</td></tr>
+        <tr><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Trung bình</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center;font-weight:700">${s.avgT}</td><td style="padding:3pt 7pt;border:0.5pt solid #ccc;text-align:center;font-weight:700">${s.avgH}</td></tr>
+        <tr style="background:#f5f7fa"><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Bắt đầu</td><td colspan="2" style="padding:3pt 7pt;border:0.5pt solid #ccc;font-size:7.5pt">${s.startT}</td></tr>
+        <tr><td style="padding:3pt 7pt;border:0.5pt solid #ccc">Kết thúc</td><td colspan="2" style="padding:3pt 7pt;border:0.5pt solid #ccc;font-size:7.5pt">${s.stopT}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="border:1.5pt solid ${(s.tA||s.hA)?'#fcd34d':'#86efac'};background:${(s.tA||s.hA)?'#fefce8':'#f0fdf4'};color:${(s.tA||s.hA)?'#78350f':'#14532d'};border-radius:3pt;padding:6pt 10pt;font-size:9pt;font-weight:700;margin-bottom:8pt">
+    ${(s.tA||s.hA)?'⚠️ DỮ LIỆU CÓ VI PHẠM NGƯỠNG CẢNH BÁO — Cần xem xét và báo cáo!':'✅ Toàn bộ dữ liệu nằm trong giới hạn cho phép — ĐẠT YÊU CẦU'}
+  </div>
+
+  <div style="font-size:8.5pt;font-weight:700;background:#1a3a5c;color:#fff;padding:3pt 8pt;margin-bottom:0">THỐNG KÊ THEO NGÀY</div>
+  <table style="width:100%;border-collapse:collapse;font-size:7.5pt;margin-bottom:8pt">
+    <tr><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">Ngày</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">T Min</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">T Max</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">T TB</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">RH Min</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">RH Max</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">RH TB</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">ĐG Nhiệt độ</th><th style="background:#e8f0f8;padding:3pt 5pt;border:0.5pt solid #ccc;text-align:center">ĐG Độ ẩm</th></tr>
+    ${dailyRows}
+  </table>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20pt;margin-top:14pt;text-align:center;font-size:8.5pt">
+    <div><div style="font-weight:700;margin-bottom:2pt">Người kiểm tra</div><div style="font-size:7.5pt;color:#777">(Ký và ghi rõ họ tên)</div><div style="height:30pt"></div></div>
+    <div><div style="font-weight:700;margin-bottom:2pt">Người thực hiện</div><div style="font-size:7.5pt;color:#777">(Ký và ghi rõ họ tên)</div><div style="height:30pt"></div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:0.5pt solid #ccc;padding-top:5pt;margin-top:8pt">
+    <span>Tạo lúc: ${s.now}</span><span>www.e-elitech.com &nbsp; File: ${s.serial}_</span>
+  </div>
+</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER PREVIEWS
+// ══════════════════════════════════════════════════════
+function scaleA4(wrapId,scalerId,pageId){
+  const wrap=document.getElementById(wrapId);
+  const scaler=document.getElementById(scalerId);
+  const page=document.getElementById(pageId);
+  if(!wrap||!scaler||!page)return;
+  const avail=wrap.offsetWidth;
+  const scale=avail>0?Math.min(1,(avail-2)/794):1;
+  scaler.style.transform=`scale(${scale})`;
+  scaler.style.width='794px';
+  wrap.style.height=(page.offsetHeight*scale+4)+'px';
+}
+function scaleAll(){
+  scaleA4('eli-scroll','eli-scaler','eli-page');
+  scaleA4('sum-scroll','sum-scaler','sum-page');
+  scaleA4('ptd-prev-scroll','ptd-prev-scaler','ptd-prev-page');
+}
+window.addEventListener('resize',()=>setTimeout(scaleAll,100));
+
+function renderPreviews(){
+  if(!rows.length)return;
+  const s=getStats();
+  const daily=getDailyStats(s);
+  
+  // Build elitech pages
+  eliPages=buildElitechPages(s,daily);
+  curEliPage=0;
+  renderEliPage();
+  buildEliTabs();
+
+  // Summary A4
+  document.getElementById('sum-page').innerHTML=buildSummaryA4(s,daily);
+
+  // Phiếu Theo Dõi Preview
+  buildPhieuTDPreview();
+
+  setTimeout(scaleAll,100);
+}
+
+function renderEliPage(){
+  const page=document.getElementById('eli-page');
+  page.innerHTML=eliPages[curEliPage]||'';
+  setTimeout(()=>scaleA4('eli-scroll','eli-scaler','eli-page'),50);
+}
+function buildEliTabs(){
+  const tabs=document.getElementById('eli-tabs');
+  if(!tabs)return;
+  tabs.innerHTML=eliPages.map((_,i)=>
+    `<button class="a4-tab${i===curEliPage?' active':''}" onclick="gotoEliPage(${i})">${i===0?'Trang 1':`Data ${i}`}</button>`
+  ).join('');
+}
+function gotoEliPage(i){curEliPage=i;renderEliPage();buildEliTabs();}
+
+// ══════════════════════════════════════════════════════
+// MOBILE-SAFE DOWNLOAD
+// ══════════════════════════════════════════════════════
+function isMob(){return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||window.innerWidth<700}
+function xlDL(wb,fname){
+  const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  const blob=new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=fname;a.style.display='none';
+  document.body.appendChild(a);try{a.click();}catch(e){}document.body.removeChild(a);
+  if(isMob()){
+    document.getElementById('dl-t').textContent='Tải file Excel';
+    document.getElementById('dl-s').textContent='Nhấn và giữ nút → chọn "Tải về"';
+    document.getElementById('dl-ico').textContent='📊';
+    document.getElementById('dl-fn').textContent=fname;
+    const dl=document.getElementById('dl-a');dl.href=url;dl.download=fname;
+    const m=document.getElementById('dlm');m.style.display='flex';m._url=url;
+  } else {setTimeout(()=>URL.revokeObjectURL(url),10000);}
+}
+function closeDL(){
+  const m=document.getElementById('dlm');m.style.display='none';
+  if(m._url){setTimeout(()=>URL.revokeObjectURL(m._url),500);m._url=null;}
+}
+document.getElementById('dlm').addEventListener('click',function(e){if(e.target===this)closeDL()});
+
+function requireData(){if(!rows.length){alert('Tạo dữ liệu trước (bước 4)');return false;}return true;}
+
+// ══════════════════════════════════════════════════════
+// DOWNLOAD DATA REPORT
+// ══════════════════════════════════════════════════════
+function dlDataReport(){
+  if(!requireData())return;
+  const s=getStats();
+  const wb=XLSX.utils.book_new();
+  const info=[
+    ['Data Report','','','',`File created on: ${s.now}`],[],
+    ['Device Information'],
+    ['Device Model:',s.model,'','Probe Type:','Temperature & Humidity'],
+    ['Serial Number:',s.serial,'','Firmware Version:','V3.1'],
+    ['Total Space:','16000'],[],
+    ['Trip Description'],['Trip Number:','N/A'],['Trip Description:',s.tripDesc],[],
+    ['Config. info'],
+    ['Button Stop:','Enable','','Logging Interval:','15m'],
+    ['Mute Button:','Enable','','Alarm Logging Interval Shorten (1 min):','Disable'],
+    ['Alarm Tone:','3 times','','Storage Mode:','Stop when full'],[],
+    ['Alarm Threshold','','','','Alarm Status'],
+    [`H1: Above: ${s.alarmH}°C`,'','Ok'],['Ideal Zone: Unlimited'],
+    [`L1: Below: ${s.alarmL}°C`,'','Ok'],[],
+    [`HH: Above: ${s.alarmHH}%`,'','Ok'],['Ideal Zone: Unlimited'],
+    [`HL: Below: ${s.alarmHL}%`,'','Ok'],[],
+    ['Summary'],
+    [`Maximum:`,`${s.maxT}°C / ${s.maxH}%`,'','Start Time:',s.startT],
+    [`Minimum:`,`${s.minT}°C / ${s.minH}%`,'','Stop Time:',s.stopT],
+    [`Average:`,`${s.avgT}°C / ${s.avgH}%`,'','Logging Duration:',s.dur],
+    [`MKT:`,`${s.avgT}°C`,'','Total Memory:',s.total],
+    [`Alarm Time(Te):`,`N/A`,'','Current Readings:',s.total],
+    [`Alarm Time(Humidity):`,`N/A`],[],
+    [`Data Report File created on: ${s.now}`],
+    [`www.e-elitech.com`,'','','',`File Name: ${s.serial}_`],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(info);
+  ws['!cols']=[{wch:28},{wch:22},{wch:5},{wch:28},{wch:22}];
+  XLSX.utils.book_append_sheet(wb,ws,'DeviceInfo');
+  const raw=[['No.','Time','Temperature°C','Humidity%']];
+  rows.forEach((r,i)=>raw.push([i+1,fmtTS(r.ts),r.temp,r.hum]));
+  const ws2=XLSX.utils.aoa_to_sheet(raw);ws2['!cols']=[{wch:6},{wch:22},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Data');
+  xlDL(wb,`${s.serial}_DataReport.xlsx`);
+}
+
+// ══════════════════════════════════════════════════════
+// DOWNLOAD SUMMARY
+// ══════════════════════════════════════════════════════
+function dlSummary(){
+  if(!requireData())return;
+  const s=getStats(),daily=getDailyStats(s);
+  const wb=XLSX.utils.book_new();
+  const sum=[
+    ['BỆNH VIỆN ĐÀ NẴNG','','','','','','','','ĐDNĐ.01'],['KHOA DƯỢC'],[],
+    ['BÁO CÁO KẾT QUẢ THEO DÕI NHIỆT ĐỘ - ĐỘ ẨM'],[],
+    [`Thiết bị: ${s.model}`,'','',`Serial: ${s.serial}`],
+    [`Mô tả: ${s.tripDesc}`],[],
+    ['THÔNG TIN THIẾT BỊ'],['Thông số','Giá trị','','Thông số','Giá trị'],
+    ['Device Model',s.model,'','Probe Type','Temperature & Humidity'],
+    ['Serial Number',s.serial,'','Firmware','V3.1'],
+    ['Total Memory',s.total,'','Logging Interval','15 phút'],[],
+    ['CẤU HÌNH CẢNH BÁO'],['Loại cảnh báo','Ngưỡng','','Trạng thái'],
+    [`Nhiệt độ cao (H1)`,`> ${s.alarmH}°C`,'',s.tA?'CẢNH BÁO':'Ok'],
+    [`Nhiệt độ thấp (L1)`,`< ${s.alarmL}°C`,'',s.tA?'CẢNH BÁO':'Ok'],
+    [`Độ ẩm cao (HH)`,`> ${s.alarmHH}%`,'',s.hA?'CẢNH BÁO':'Ok'],
+    [`Độ ẩm thấp (HL)`,`< ${s.alarmHL}%`,'',s.hA?'CẢNH BÁO':'Ok'],[],
+    ['KẾT QUẢ THỐNG KÊ'],['Thông số','Nhiệt độ (°C)','','Độ ẩm (%)'],
+    ['Giá trị lớn nhất',s.maxT,'',s.maxH],['Giá trị nhỏ nhất',s.minT,'',s.minH],
+    ['Giá trị trung bình',s.avgT,'',s.avgH],['MKT (°C)',s.avgT],[],
+    ['THỜI GIAN GHI DỮ LIỆU'],['Bắt đầu:',s.startT],['Kết thúc:',s.stopT],
+    ['Thời lượng:',s.dur],['Tổng bản ghi:',s.total],[],
+    ['KẾT LUẬN'],
+    [(s.tA||s.hA)?'⚠️ DỮ LIỆU CÓ VI PHẠM NGƯỠNG CẢNH BÁO':'✅ Toàn bộ dữ liệu trong giới hạn — ĐẠT YÊU CẦU'],[],
+    [`Ngày giờ tạo báo cáo: ${s.now}`],[],[],[],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(sum);
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:7}},{s:{r:1,c:0},e:{r:1,c:7}},{s:{r:3,c:0},e:{r:3,c:8}}];
+  ws['!cols']=[{wch:26},{wch:18},{wch:4},{wch:26},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws,'SummaryReport');
+  const dh=[['Ngày','T Min (°C)','T Max (°C)','T TB (°C)','RH Min (%)','RH Max (%)','RH TB (%)','Đánh giá nhiệt độ','Đánh giá độ ẩm']];
+  daily.forEach(d=>dh.push([d.date,d.tMn,d.tMx,d.tAv,d.hMn,d.hMx,d.hAv,d.tOk?'Đạt':'Không đạt',d.hOk?'Đạt':'Không đạt']));
+  const ws2=XLSX.utils.aoa_to_sheet(dh);
+  ws2['!cols']=[{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:16},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws2,'ThongKeNgay');
+  xlDL(wb,`${s.serial}_SummaryReport.xlsx`);
+}
+
+// ══════════════════════════════════════════════════════
+// DOWNLOAD ELITECH REPORT (xlsx clone)
+// ══════════════════════════════════════════════════════
+function dlElitechReport(){
+  if(!requireData())return;
+  const s=getStats();
+  const wb=XLSX.utils.book_new();
+  // DeviceInfo sheet (same as Data Report)
+  const info=[
+    ['Data Report','','','',`File created on: ${s.now}`],[],['Device Information'],
+    ['Device Model:',s.model,'','Probe Type:','Temperature & Humidity'],
+    ['Serial Number:',s.serial,'','Firmware Version:','V3.1'],['Total Space:','16000'],[],
+    ['Trip Description'],['Trip Number:','N/A'],['Trip Description:',s.tripDesc],[],
+    ['Alarm Threshold','','','','Alarm Status'],
+    [`H1: Above: ${s.alarmH}°C`,'','Ok'],['Ideal Zone: Unlimited'],[`L1: Below: ${s.alarmL}°C`,'','Ok'],[],
+    [`HH: Above: ${s.alarmHH}%`,'','Ok'],['Ideal Zone: Unlimited'],[`HL: Below: ${s.alarmHL}%`,'','Ok'],[],
+    ['Summary'],
+    [`Maximum:`,`${s.maxT}°C / ${s.maxH}%`,'','Start Time:',s.startT],
+    [`Minimum:`,`${s.minT}°C / ${s.minH}%`,'','Stop Time:',s.stopT],
+    [`Average:`,`${s.avgT}°C / ${s.avgH}%`,'','Logging Duration:',s.dur],
+    [`MKT:`,`${s.avgT}°C`,'','Total Memory:',s.total],
+    [`Alarm Time(Te):`,'N/A','','Current Readings:',s.total],[`Alarm Time(Humidity):`,'N/A'],[],
+    [`Data Report File created on: ${s.now}`],[`www.e-elitech.com`,'','','',`File Name: ${s.serial}_`],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(info);ws['!cols']=[{wch:28},{wch:22},{wch:5},{wch:28},{wch:22}];
+  XLSX.utils.book_append_sheet(wb,ws,'DeviceInfo');
+  // Data sheet
+  const raw=[['No.','Time','Temperature°C','Humidity%']];
+  rows.forEach((r,i)=>raw.push([i+1,fmtTS(r.ts),r.temp,r.hum]));
+  const ws2=XLSX.utils.aoa_to_sheet(raw);ws2['!cols']=[{wch:6},{wch:22},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Data');
+  xlDL(wb,`${s.serial}_ElitechReport.xlsx`);
+}
+
+// ══════════════════════════════════════════════════════
+// PRINT ELITECH — opens full HTML in new window
+// ══════════════════════════════════════════════════════
+function printElitech(){
+  if(!requireData())return;
+  const s=getStats(),daily=getDailyStats(s);
+  const pages=buildElitechPages(s,daily);
+  const sumHtml=buildSummaryA4(s,daily);
+  
+  const allHtml=pages.map((p,i)=>`
+    <div class="page" style="width:210mm;min-height:297mm;padding:10mm 14mm;box-sizing:border-box;background:#fff;font-family:Arial,sans-serif;${i>0?'page-break-before:always':''}">${p}</div>
+  `).join('')+`
+    <div class="page" style="width:210mm;min-height:297mm;padding:10mm 14mm;box-sizing:border-box;background:#fff;font-family:Arial,sans-serif;page-break-before:always">${sumHtml}</div>
+  `;
+  
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Data Report ${s.serial}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+body{background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:9pt}
+.page{page-break-inside:avoid}
+.eli-wrap{padding:10mm 12mm;font-family:Arial,sans-serif;font-size:8.5pt;line-height:1.35}
+.eli-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10pt;padding-bottom:7pt;border-bottom:2pt solid #1a3a5c}
+.eli-brand{display:flex;align-items:center;gap:8pt}
+.eli-logo{width:36pt;height:36pt;background:#1a3a5c;border-radius:5pt;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18pt}
+.eli-section{margin-bottom:8pt}
+.eli-section-title{font-size:8.5pt;font-weight:700;color:#fff;background:#1a3a5c;padding:2.5pt 7pt;margin-bottom:0}
+.eli-tbl{width:100%;border-collapse:collapse;font-size:8pt}
+.eli-tbl td{padding:2.5pt 6pt;border:0.5pt solid #ccc;vertical-align:middle}
+.eli-tbl tr:nth-child(even) td{background:#f5f7fa}
+.eli-tbl .lbl{font-weight:700;color:#1a3a5c;width:140pt;white-space:nowrap}
+.eli-tbl .lbl2{font-weight:700;color:#1a3a5c;padding-left:15pt;white-space:nowrap}
+.eli-alarm-tbl{width:100%;border-collapse:collapse;font-size:8pt}
+.eli-alarm-tbl th{background:#1a3a5c;color:#fff;padding:2.5pt 6pt;text-align:left;font-weight:700}
+.eli-alarm-tbl td{padding:2.5pt 6pt;border:0.5pt solid #ccc;vertical-align:middle}
+.eli-alarm-tbl tr:nth-child(even) td{background:#f5f7fa}
+.eli-chart-area{border:0.5pt solid #ccc;border-radius:2pt}
+.eli-chart-title{font-size:7.5pt;color:#555;padding:3pt 7pt;border-bottom:0.5pt solid #eee;background:#f8f8f8;display:flex;justify-content:space-between}
+.eli-chart-legend{display:flex;gap:14pt;font-size:7pt;color:#555}
+.eli-chart-legend span{display:flex;align-items:center;gap:3pt}
+.eli-footer{display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:0.5pt solid #ccc;padding-top:4pt;margin-top:6pt}
+.eli-data-hdr{font-size:8pt;font-weight:700;color:#fff;background:#1a3a5c;padding:2.5pt 7pt;display:flex;justify-content:space-between}
+@page{margin:0;size:A4}
+@media print{body{background:#fff}.page{page-break-inside:avoid}}
+</style></head><body>${allHtml}</body></html>`;
+  
+  if(isMob()){
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const win=window.open(url,'_blank');
+    if(!win)window.location.href=url;
+    else setTimeout(()=>win.print(),600);
+  } else {
+    const win=window.open('','_blank');
+    if(win){win.document.write(html);win.document.close();setTimeout(()=>win.print(),600);}
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey){
+    if(e.key==='='||e.key==='+'){e.preventDefault();adjZ(.1)}
+    else if(e.key==='-'){e.preventDefault();adjZ(-.1)}
+    else if(e.key==='0'){e.preventDefault();resetZ()}
+  }
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  const now=new Date(),ma=new Date(now-30*24*3600000);
+  const tl=d=>{const p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;};
+  document.getElementById('dtStart').value=tl(ma);
+  document.getElementById('dtEnd').value=tl(now);
+  loadDevs(); renderDG(); initLayout();
+});
+
+// ══════════════════════════════════════════════════════
+// PHIẾU THEO DÕI NHIỆT ĐỘ (SOP.VC.7)
+// ══════════════════════════════════════════════════════
+let ptdMode = 'fridge';
+function setPtdMode(m){
+  ptdMode = m;
+  document.getElementById('ptd-mode-fr').className = 'tgo' + (m==='fridge'?' fr-on':'');
+  document.getElementById('ptd-mode-rm').className = 'tgo' + (m==='room'?' on':'');
+}
+
+function renderPtd(){
+  const tuSo = document.getElementById('ptd-tuSo').value.trim() || '......';
+  const thang = document.getElementById('ptd-thang').value.trim() || '...... năm ......';
+  const kho = document.getElementById('ptd-kho').value.trim();
+  const quyDinh = ptdMode === 'fridge' ? '2°C – 8°C' : '18°C – 25°C';
+
+  // Build 31-row table
+  let rows31 = '';
+  for(let i=1;i<=31;i++){
+    rows31 += `<tr style="height:18pt">
+      <td style="text-align:center;font-weight:700;border:0.5pt solid #bbb;padding:2pt 4pt;background:${i%2===0?'#f9fbfd':'#fff'}">${i}</td>
+      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
+      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
+      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
+      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
+      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
+      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
+    </tr>`;
+  }
+
+  const html = `<div style="font-family:Arial,sans-serif;font-size:9pt;padding:20px 28px">
+    <!-- Header -->
+    <table style="width:100%;border-collapse:collapse;border:1pt solid #333;margin-bottom:0">
+      <tr>
+        <td rowspan="3" style="width:22%;text-align:center;font-weight:700;font-size:9pt;padding:6pt 8pt;border-right:1pt solid #333;border-bottom:1pt solid #333;vertical-align:middle;line-height:1.5">BỆNH VIỆN ĐÀ NẴNG<br><span style="font-weight:400;font-size:8pt">KHOA DƯỢC</span></td>
+        <td colspan="2" style="text-align:center;font-weight:900;font-size:12pt;padding:8pt;border-bottom:0.5pt solid #ccc;letter-spacing:.3px;text-transform:uppercase;color:#1a3a5c">Phiếu Theo Dõi<br>Nhiệt Độ Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin</td>
+      </tr>
+      <tr>
+        <td style="padding:4pt 8pt;border-right:1pt solid #333;border-bottom:0.5pt solid #ccc;font-size:8.5pt"><b>Tủ vắc xin số:</b> <u>&nbsp;&nbsp;${tuSo}&nbsp;&nbsp;</u>${kho ? '&nbsp;&nbsp;<b>Vị trí:</b> ' + kho : ''}</td>
+        <td style="padding:4pt 8pt;font-size:8.5pt;border-bottom:0.5pt solid #ccc"><b>Tháng:</b> <u>&nbsp;&nbsp;${thang}&nbsp;&nbsp;</u></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding:4pt 8pt;font-size:8.5pt">
+          <b>Quy định:</b> &nbsp; Nhiệt độ cho phép: &nbsp;
+          <span style="font-size:10pt;font-weight:700;color:#1a4a8c">${quyDinh}</span>
+          &nbsp;&nbsp;|&nbsp;&nbsp; <b>Mã tài liệu:</b> SOP.VC.7
+        </td>
+      </tr>
+    </table>
+
+    <!-- Data Table -->
+    <table style="width:100%;border-collapse:collapse;font-size:8pt;margin-top:0">
+      <thead>
+        <tr style="background:#1a3a5c;color:#fff">
+          <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:6%">Ngày</th>
+          <th colspan="4" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:46%">Nhiệt độ (°C)</th>
+          <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>thực hiện</th>
+          <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>kiểm tra</th>
+          <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Ghi chú</th>
+        </tr>
+        <tr style="background:#2d5a8c;color:#fff">
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:10%">Sáng</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Chiều</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Cao nhất</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Thấp nhất</th>
+        </tr>
+      </thead>
+      <tbody>${rows31}</tbody>
+      <tfoot>
+        <tr style="background:#e8f0f8">
+          <td colspan="7" style="padding:5pt 8pt;border:0.5pt solid #bbb;font-size:8pt;font-style:italic;color:#555">
+            <b>Nhận xét cuối tháng:</b> ......................................................................................................................................................................................................................................
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" style="padding:4pt 8pt;border:0.5pt solid #bbb;font-size:8pt"><b>Tổng số ngày vi phạm:</b> ...............</td>
+          <td colspan="4" style="padding:4pt 8pt;border:0.5pt solid #bbb;font-size:8pt"><b>Kết quả đánh giá tháng:</b> &nbsp;
+            <span style="border:0.5pt solid #555;padding:1pt 8pt">Đạt</span> &nbsp;
+            <span style="border:0.5pt solid #555;padding:1pt 8pt">Không đạt</span>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Note -->
+    <div style="border:1pt solid #f59e0b;background:#fefce8;border-radius:3pt;padding:5pt 10pt;font-size:7.5pt;color:#78350f;margin-top:6pt">
+      <b>⚠️ Lưu ý:</b> Khi nhiệt độ vượt quá giới hạn, phải điều chỉnh kịp thời, ghi lại kết quả sau khi điều chỉnh và báo cáo theo <i>Quy trình xử lý tình huống khẩn cấp vắc xin bảo quản trong tủ lạnh</i>.
+    </div>
+
+    <!-- Signatures -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20pt;margin-top:14pt;text-align:center;font-size:8.5pt">
+      <div><div style="font-weight:700;margin-bottom:2pt">Người giám sát</div><div style="font-size:7.5pt;color:#777">(Ký và ghi rõ họ tên)</div><div style="height:36pt"></div><div style="border-top:0.5pt solid #555;width:60%;margin:0 auto;padding-top:3pt"></div></div>
+      <div><div style="font-weight:700;margin-bottom:2pt">Thủ kho / Người thực hiện</div><div style="font-size:7.5pt;color:#777">(Ký và ghi rõ họ tên)</div><div style="height:36pt"></div><div style="border-top:0.5pt solid #555;width:60%;margin:0 auto;padding-top:3pt"></div></div>
+    </div>
+
+    <!-- Footer -->
+    <div style="display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:0.5pt solid #ccc;padding-top:5pt;margin-top:8pt">
+      <span>SOP.VC.7 — Ban hành: 12/08/2021</span>
+      <span>Bệnh viện Đà Nẵng — Khoa Dược</span>
+    </div>
+  </div>`;
+
+  document.getElementById('ptd-page').innerHTML = html;
+  setTimeout(()=>scaleA4('ptd-scroll','ptd-scaler','ptd-page'),100);
+}
+
+function printPtd(){
+  const page = document.getElementById('ptd-page');
+  if(!page.innerHTML || page.querySelector('.a4-empty')){
+    renderPtd();
+    setTimeout(()=>{
+      const w = window.open('','_blank');
+      w.document.write('<html><head><title>Phiếu Theo Dõi Nhiệt Độ</title><style>body{margin:0}@media print{@page{margin:10mm}}</style></head><body>' + document.getElementById('ptd-page').innerHTML + '</body></html>');
+      w.document.close(); w.print();
+    }, 300);
+  } else {
+    const w = window.open('','_blank');
+    w.document.write('<html><head><title>Phiếu Theo Dõi Nhiệt Độ</title><style>body{margin:0}@media print{@page{margin:10mm}}</style></head><body>' + page.innerHTML + '</body></html>');
+    w.document.close(); w.print();
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// XUẤT PHIẾU THEO DÕI NHIỆT ĐỘ — SOP.VC.7
+// ══════════════════════════════════════════════════════
+function dlPhieuTD(){
+  if(!requireData()) return;
+  const cfg = getCfg();
+  const wb  = XLSX.utils.book_new();
+
+  /* ── Gom rows theo tháng ── */
+  const byMonth = {};
+  rows.forEach(r => {
+    const key = pad(r.ts.getFullYear()) + '.' + pad(r.ts.getMonth()+1);
+    if(!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(r);
+  });
+
+  /* ── Tính running max/min tích lũy từ bản ghi đầu tiên ── */
+  let runMax = -Infinity, runMin = Infinity;
+  const runningByIdx = rows.map(r => {
+    runMax = Math.max(runMax, r.temp);
+    runMin = Math.min(runMin, r.temp);
+    return { ts: r.ts, temp: r.temp, rMax: runMax, rMin: runMin };
+  });
+
+  /* Helper: lấy running max/min tính đến cuối ngày dk (yyyy-mm-dd dạng Date obj) */
+  function runningUpToEndOfDay(dateObj){
+    const cutoff = new Date(dateObj);
+    cutoff.setHours(23,59,59,999);
+    let mx = -Infinity, mn = Infinity;
+    for(let i = 0; i < runningByIdx.length; i++){
+      if(runningByIdx[i].ts > cutoff) break;
+      if(runningByIdx[i].temp > mx) mx = runningByIdx[i].temp;
+      if(runningByIdx[i].temp < mn) mn = runningByIdx[i].temp;
+    }
+    return { mx: mx === -Infinity ? null : mx, mn: mn === Infinity ? null : mn };
+  }
+
+  /* Helper: tìm bản ghi gần nhất với target giờ (phút) trong ngày */
+  function nearest(dayRows, targetH, targetM){
+    if(!dayRows || !dayRows.length) return null;
+    const targetMin = targetH * 60 + targetM;
+    let best = null, bestDiff = Infinity;
+    dayRows.forEach(r => {
+      const rMin = r.ts.getHours() * 60 + r.ts.getMinutes();
+      const diff = Math.abs(rMin - targetMin);
+      if(diff < bestDiff){ bestDiff = diff; best = r; }
+    });
+    return best;
+  }
+
+  /* Màu tiêu đề */
+  const HDR_FILL  = { fgColor:{ rgb:'1A3A5C' } };
+  const HDR_FILL2 = { fgColor:{ rgb:'2D5A8C' } };
+  const HDR_FONT  = { bold:true, color:{ rgb:'FFFFFF' }, sz:10 };
+  const BODY_FONT = { name:'Arial', sz:10 };
+  const BOLD_FONT = { bold:true, sz:10 };
+  const CENTER    = { horizontal:'center', vertical:'center' };
+  const THIN      = { style:'thin', color:{ rgb:'BBBBBB' } };
+  const BORDER    = { top:THIN, bottom:THIN, left:THIN, right:THIN };
+  const THICKB    = { style:'medium', color:{ rgb:'1A3A5C' } };
+  const THICK_BORDER = { top:THICKB, bottom:THICKB, left:THICKB, right:THICKB };
+
+  function hdrCell(v){
+    return { v, t:'s', s:{ fill:HDR_FILL, font:HDR_FONT, alignment:CENTER, border:BORDER } };
+  }
+  function hdrCell2(v){
+    return { v, t:'s', s:{ fill:HDR_FILL2, font:HDR_FONT, alignment:CENTER, border:BORDER } };
+  }
+  function bodyCell(v, bold){
+    const t = (typeof v === 'number') ? 'n' : 's';
+    return { v: v===null||v===undefined?'':v, t, s:{
+      font: bold ? BOLD_FONT : BODY_FONT,
+      alignment: CENTER, border: BORDER
+    }};
+  }
+  function dayCell(v){
+    return { v, t:'n', s:{ font:BOLD_FONT, alignment:CENTER, border:BORDER,
+      fill:{ fgColor:{ rgb:'EAF0FB' } } } };
+  }
+  function numCell(v){
+    const isNum = (v !== null && v !== undefined && v !== '');
+    return { v: isNum ? v : '', t: isNum ? 'n' : 's',
+      s:{ font:BODY_FONT, alignment:CENTER, border:BORDER,
+          numFmt:'0.0' } };
+  }
+
+  /* ── Tạo 1 sheet cho mỗi tháng ── */
+  const sortedMonths = Object.keys(byMonth).sort();
+
+  sortedMonths.forEach(monthKey => {
+    const monthRows = byMonth[monthKey];
+    const [yyyy, mm] = monthKey.split('.').map(Number);
+    const daysInMonth = new Date(yyyy, mm, 0).getDate();
+    const sheetName = pad(mm) + '.' + yyyy;
+
+    /* Gom rows theo ngày trong tháng */
+    const byDay = {};
+    monthRows.forEach(r => {
+      const d = r.ts.getDate();
+      if(!byDay[d]) byDay[d] = [];
+      byDay[d].push(r);
+    });
+
+    /* Tiêu đề thông tin */
+    const infoSerial = cfg.serial || 'N/A';
+    const infoModel  = cfg.model  || 'N/A';
+    const infoDesc   = cfg.tripDesc || '';
+    const quyDinh   = cfg.mode === 'fridge' ? '2°C – 8°C' : '18°C – 25°C';
+
+    /* ── Xây dựng mảng AOA (array-of-arrays) ── */
+    // Row 0: tiêu đề phiếu (merge A1:G1)
+    // Row 1: thông tin thiết bị
+    // Row 2: sub-header 1
+    // Row 3: sub-header 2
+    // Row 4..4+days: dữ liệu
+    // Sau: chú thích
+
+    const aoa = [];
+
+    // Row 0 — Tiêu đề lớn
+    aoa.push([
+      { v:'PHIẾU THEO DÕI NHIỆT ĐỘ TỦ/HÒM LẠNH/PHÍCH BẢO QUẢN VẮC XIN', t:'s',
+        s:{ font:{ bold:true, sz:13, color:{ rgb:'1A3A5C' } },
+            alignment:{ horizontal:'center', vertical:'center' },
+            fill:{ fgColor:{ rgb:'EAF0FB' } } } },
+      '','','','','',''
+    ]);
+
+    // Row 1 — Thông tin
+    aoa.push([
+      { v:`Serial: ${infoSerial}   |   Model: ${infoModel}   |   Tháng: ${pad(mm)}/${yyyy}   |   Quy định: ${quyDinh}`, t:'s',
+        s:{ font:{ sz:9, italic:true }, alignment:{ horizontal:'left', vertical:'center' } } },
+      '','','','','',''
+    ]);
+    if(infoDesc){
+      aoa.push([
+        { v:`Mô tả: ${infoDesc}`, t:'s',
+          s:{ font:{ sz:9, italic:true }, alignment:{ horizontal:'left' } } },
+        '','','','','',''
+      ]);
+    }
+
+    // Blank row
+    aoa.push(['','','','','','','']);
+
+    // Header row 1 — nhóm cột
+    aoa.push([
+      hdrCell('Ngày'),
+      hdrCell('Nhiệt độ (°C)'), '', '', '',
+      hdrCell('Người thực hiện'),
+      hdrCell('Người kiểm tra')
+    ]);
+
+    // Header row 2 — chi tiết
+    aoa.push([
+      hdrCell(''),
+      hdrCell2('Sáng (~7h35)'),
+      hdrCell2('Chiều (~16h55)'),
+      hdrCell2('Cao nhất (tích lũy)'),
+      hdrCell2('Thấp nhất (tích lũy)'),
+      hdrCell2(''),
+      hdrCell2('')
+    ]);
+
+    const dataStartRow = aoa.length; // for merges ref
+
+    // Dữ liệu 31 ngày
+    for(let d = 1; d <= daysInMonth; d++){
+      const dayRowsD = byDay[d] || [];
+      const dateObj  = new Date(yyyy, mm-1, d);
+
+      const rSang   = nearest(dayRowsD, 7, 35);
+      const rChieu  = nearest(dayRowsD, 16, 55);
+      const running = runningUpToEndOfDay(dateObj);
+
+      const tSang  = rSang  ? parseFloat(rSang.temp.toFixed(1))  : null;
+      const tChieu = rChieu ? parseFloat(rChieu.temp.toFixed(1)) : null;
+      const tMax   = running.mx !== null ? parseFloat(running.mx.toFixed(1)) : null;
+      const tMin   = running.mn !== null ? parseFloat(running.mn.toFixed(1)) : null;
+
+      const rowBg = d % 2 === 0 ? 'F5F8FD' : 'FFFFFF';
+
+      function numCellBg(v){
+        const isNum = (v !== null);
+        return { v: isNum ? v : '', t: isNum ? 'n' : 's',
+          s:{ font:BODY_FONT, alignment:CENTER, border:BORDER,
+              fill:{ fgColor:{ rgb: rowBg } }, numFmt:'0.0' } };
+      }
+      function dayCellBg(v){
+        return { v, t:'n', s:{ font:BOLD_FONT, alignment:CENTER, border:BORDER,
+          fill:{ fgColor:{ rgb:'E3ECF8' } } } };
+      }
+      function emptyCellBg(){
+        return { v:'', t:'s', s:{ font:BODY_FONT, alignment:CENTER, border:BORDER,
+          fill:{ fgColor:{ rgb: rowBg } } } };
+      }
+
+      aoa.push([
+        dayCellBg(d),
+        numCellBg(tSang),
+        numCellBg(tChieu),
+        numCellBg(tMax),
+        numCellBg(tMin),
+        emptyCellBg(),
+        emptyCellBg()
+      ]);
+    }
+
+    // Chú thích cuối
+    aoa.push(['','','','','','','']);
+    aoa.push([
+      { v:'⚠️ Lưu ý: Khi nhiệt độ ngoài khoảng cho phép, phải báo cáo và xử lý theo Quy trình khẩn cấp vắc xin (SOP.VC.7)', t:'s',
+        s:{ font:{ sz:8, italic:true, color:{ rgb:'78350F' } },
+            fill:{ fgColor:{ rgb:'FEFCE8' } }, alignment:{ horizontal:'left' } } },
+      '','','','','',''
+    ]);
+
+    /* ── Tạo worksheet ── */
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    /* Column widths */
+    ws['!cols'] = [
+      { wch:7 },   // Ngày
+      { wch:16 },  // Sáng
+      { wch:16 },  // Chiều
+      { wch:20 },  // Cao nhất
+      { wch:20 },  // Thấp nhất
+      { wch:18 },  // Người TH
+      { wch:18 }   // Người KT
+    ];
+
+    /* Row heights */
+    ws['!rows'] = [];
+    ws['!rows'][0] = { hpt: 24 }; // tiêu đề
+    for(let i = 0; i < aoa.length; i++){
+      if(!ws['!rows'][i]) ws['!rows'][i] = { hpt: 18 };
+    }
+
+    /* Merges */
+    const M = [];
+    // Tiêu đề A1:G1
+    M.push({ s:{r:0,c:0}, e:{r:0,c:6} });
+    // Info rows
+    M.push({ s:{r:1,c:0}, e:{r:1,c:6} });
+    if(infoDesc) M.push({ s:{r:2,c:0}, e:{r:2,c:6} });
+
+    const hdrOffset = infoDesc ? 4 : 3; // blank row index (0-based) before header
+    const h1Row = hdrOffset;   // "Ngày" | "Nhiệt độ" header
+    const h2Row = hdrOffset+1; // sub-header
+
+    // Merge "Nhiệt độ (°C)" → cols 1-4
+    M.push({ s:{r:h1Row,c:1}, e:{r:h1Row,c:4} });
+    // Merge "Ngày" vertically
+    M.push({ s:{r:h1Row,c:0}, e:{r:h2Row,c:0} });
+    // Merge "Người TH" vertically
+    M.push({ s:{r:h1Row,c:5}, e:{r:h2Row,c:5} });
+    // Merge "Người KT" vertically
+    M.push({ s:{r:h1Row,c:6}, e:{r:h2Row,c:6} });
+
+    ws['!merges'] = M;
+
+    /* Print settings */
+    ws['!pageSetup'] = {
+      paperSize: 9,         // A4
+      orientation: 'portrait',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0
+    };
+    ws['!printArea'] = `A1:G${aoa.length}`;
+    ws['!freeze'] = { xSplit:0, ySplit: (infoDesc?6:5) };
+
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
+
+  if(!wb.SheetNames.length){
+    alert('Không có dữ liệu để xuất!');
+    return;
+  }
+
+  const s = getCfg();
+  xlDL(wb, `PhieuTD_${s.serial}_${sortedMonths.join('_')}.xlsx`);
+}
+
+
+// ══════════════════════════════════════════════════════
+// XEM TRƯỚC PHIẾU THEO DÕI NHIỆT ĐỘ (SOP.VC.7)
+// ══════════════════════════════════════════════════════
+let ptdPrevPages = [], curPtdPrevPage = 0;
+
+function buildPhieuTDPreview(){
+  if(!rows.length) return;
+  const cfg = getCfg();
+
+  /* Gom rows theo tháng */
+  const byMonth = {};
+  rows.forEach(r => {
+    const key = pad(r.ts.getFullYear()) + '.' + pad(r.ts.getMonth()+1);
+    if(!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(r);
+  });
+
+  /* Running max/min tích lũy toàn bộ từ đầu */
+  let runMax = -Infinity, runMin = Infinity;
+  const runningArr = rows.map(r => {
+    runMax = Math.max(runMax, r.temp);
+    runMin = Math.min(runMin, r.temp);
+    return { ts: r.ts, rMax: runMax, rMin: runMin };
+  });
+
+  function runningUpToEndOfDay(dateObj){
+    const cutoff = new Date(dateObj); cutoff.setHours(23,59,59,999);
+    let mx = -Infinity, mn = Infinity;
+    for(let i = 0; i < runningArr.length; i++){
+      if(runningArr[i].ts > cutoff) break;
+      if(rows[i].temp > mx) mx = rows[i].temp;
+      if(rows[i].temp < mn) mn = rows[i].temp;
+    }
+    return { mx: mx === -Infinity ? null : mx, mn: mn === Infinity ? null : mn };
+  }
+
+  function nearest(dayRows, targetH, targetM){
+    if(!dayRows || !dayRows.length) return null;
+    const targetMin = targetH * 60 + targetM;
+    let best = null, bestDiff = Infinity;
+    dayRows.forEach(r => {
+      const rMin = r.ts.getHours() * 60 + r.ts.getMinutes();
+      const diff = Math.abs(rMin - targetMin);
+      if(diff < bestDiff){ bestDiff = diff; best = r; }
+    });
+    return best;
+  }
+
+  const sortedMonths = Object.keys(byMonth).sort();
+  ptdPrevPages = sortedMonths.map(monthKey => {
+    const monthRows = byMonth[monthKey];
+    const [yyyy, mm] = monthKey.split('.').map(Number);
+    const daysInMonth = new Date(yyyy, mm, 0).getDate();
+    const quyDinh = cfg.mode === 'fridge' ? '2°C – 8°C' : '18°C – 25°C';
+
+    const byDay = {};
+    monthRows.forEach(r => {
+      const d = r.ts.getDate();
+      if(!byDay[d]) byDay[d] = [];
+      byDay[d].push(r);
+    });
+
+    /* Build 31-row table HTML */
+    let tbodyRows = '';
+    for(let d = 1; d <= daysInMonth; d++){
+      const dayRowsD = byDay[d] || [];
+      const dateObj  = new Date(yyyy, mm-1, d);
+      const rSang  = nearest(dayRowsD, 7, 35);
+      const rChieu = nearest(dayRowsD, 16, 55);
+      const run    = runningUpToEndOfDay(dateObj);
+
+      const fmtT = v => v !== null ? v.toFixed(1) : '<span style="color:#bbb">—</span>';
+      const bg   = d % 2 === 0 ? '#f5f8fd' : '#ffffff';
+
+      tbodyRows += `<tr style="height:16pt;background:${bg}">
+        <td style="text-align:center;font-weight:700;border:0.5pt solid #ccc;padding:1pt 4pt;background:#e3ecf8">${d}</td>
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(rSang ? parseFloat(rSang.temp.toFixed(1)) : null)}</td>
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(rChieu ? parseFloat(rChieu.temp.toFixed(1)) : null)}</td>
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(run.mx !== null ? parseFloat(run.mx.toFixed(1)) : null)}</td>
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(run.mn !== null ? parseFloat(run.mn.toFixed(1)) : null)}</td>
+        <td style="border:0.5pt solid #ccc;padding:1pt 4pt"></td>
+        <td style="border:0.5pt solid #ccc;padding:1pt 4pt"></td>
+      </tr>`;
+    }
+
+    return `<div class="eli-wrap" style="padding:20px 28px;font-family:Arial,sans-serif;font-size:9pt">
+
+      <!-- Tiêu đề -->
+      <div style="text-align:center;margin-bottom:8pt">
+        <div style="font-size:13pt;font-weight:900;color:#1a3a5c;text-transform:uppercase;letter-spacing:.3px">
+          Phiếu Theo Dõi Nhiệt Độ
+        </div>
+        <div style="font-size:9pt;color:#555;margin-top:2pt">
+          Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin — SOP.VC.7
+        </div>
+      </div>
+
+      <!-- Thông tin -->
+      <table style="width:100%;border-collapse:collapse;border:1pt solid #1a3a5c;margin-bottom:0;font-size:8.5pt">
+        <tr>
+          <td style="padding:4pt 8pt;border-right:0.5pt solid #ccc;width:50%">
+            <b>Serial:</b> ${cfg.serial || 'N/A'} &nbsp;&nbsp; <b>Model:</b> ${cfg.model || 'N/A'}
+          </td>
+          <td style="padding:4pt 8pt;width:30%">
+            <b>Tháng:</b> ${pad(mm)}/${yyyy}
+          </td>
+          <td style="padding:4pt 8pt;width:20%;text-align:right;font-size:8pt;color:#555">
+            Mã TL: SOP.VC.7
+          </td>
+        </tr>
+        <tr style="border-top:0.5pt solid #ccc">
+          <td colspan="2" style="padding:4pt 8pt">
+            <b>Mô tả:</b> ${cfg.tripDesc || '—'}
+          </td>
+          <td style="padding:4pt 8pt;text-align:right">
+            <b style="color:#1a4a8c">Quy định: ${quyDinh}</b>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Bảng dữ liệu -->
+      <table style="width:100%;border-collapse:collapse;font-size:8pt;margin-top:0">
+        <thead>
+          <tr style="background:#1a3a5c;color:#fff">
+            <th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:6%">Ngày</th>
+            <th colspan="4" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center">Nhiệt độ (°C)</th>
+            <th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>thực hiện</th>
+            <th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>kiểm tra</th>
+          </tr>
+          <tr style="background:#2d5a8c;color:#fff">
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:10%">Sáng<br><span style="font-weight:400;font-size:7pt;opacity:.85">~7:35</span></th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Chiều<br><span style="font-weight:400;font-size:7pt;opacity:.85">~16:55</span></th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Cao nhất<br><span style="font-weight:400;font-size:7pt;opacity:.85">(tích lũy)</span></th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Thấp nhất<br><span style="font-weight:400;font-size:7pt;opacity:.85">(tích lũy)</span></th>
+          </tr>
+        </thead>
+        <tbody>${tbodyRows}</tbody>
+      </table>
+
+      <!-- Ghi chú -->
+      <div style="border:1pt solid #f59e0b;background:#fefce8;border-radius:3pt;padding:5pt 10pt;font-size:7.5pt;color:#78350f;margin-top:6pt">
+        <b>⚠️ Lưu ý:</b> Khi nhiệt độ vượt quá giới hạn, phải điều chỉnh kịp thời và báo cáo theo <i>Quy trình xử lý tình huống khẩn cấp vắc xin (SOP.VC.7)</i>.
+      </div>
+
+      <!-- Chữ ký -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20pt;margin-top:14pt;text-align:center;font-size:8.5pt">
+        <div>
+          <div style="font-weight:700;margin-bottom:2pt">Người giám sát</div>
+          <div style="font-size:7.5pt;color:#777">(Ký và ghi rõ họ tên)</div>
+          <div style="height:36pt"></div>
+          <div style="border-top:0.5pt solid #555;width:60%;margin:0 auto;padding-top:3pt"></div>
+        </div>
+        <div>
+          <div style="font-weight:700;margin-bottom:2pt">Thủ kho / Người thực hiện</div>
+          <div style="font-size:7.5pt;color:#777">(Ký và ghi rõ họ tên)</div>
+          <div style="height:36pt"></div>
+          <div style="border-top:0.5pt solid #555;width:60%;margin:0 auto;padding-top:3pt"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:0.5pt solid #ccc;padding-top:5pt;margin-top:8pt">
+        <span>SOP.VC.7 — Ban hành: 12/08/2021</span>
+        <span>Tháng ${pad(mm)}/${yyyy} — Serial: ${cfg.serial || 'N/A'}</span>
+      </div>
+    </div>`;
+  });
+
+  curPtdPrevPage = 0;
+  renderPtdPrevPage();
+  buildPtdPrevTabs();
+}
+
+function renderPtdPrevPage(){
+  const page = document.getElementById('ptd-prev-page');
+  if(!page) return;
+  page.innerHTML = ptdPrevPages[curPtdPrevPage] || '';
+  setTimeout(() => scaleA4('ptd-prev-scroll','ptd-prev-scaler','ptd-prev-page'), 50);
+}
+
+function buildPtdPrevTabs(){
+  const tabs = document.getElementById('ptd-prev-tabs');
+  if(!tabs) return;
+  tabs.innerHTML = ptdPrevPages.map((_, i) => {
+    const sortedMonths = Object.keys(
+      rows.reduce((acc,r) => {
+        const k = pad(r.ts.getFullYear())+'.'+pad(r.ts.getMonth()+1);
+        acc[k]=1; return acc;
+      }, {})
+    ).sort();
+    const lbl = sortedMonths[i] || ('Tháng '+(i+1));
+    return `<button class="a4-tab${i===curPtdPrevPage?' active':''}" onclick="gotoPtdPrevPage(${i})">${lbl}</button>`;
+  }).join('');
+}
+
+function gotoPtdPrevPage(i){ curPtdPrevPage=i; renderPtdPrevPage(); buildPtdPrevTabs(); }
+
+</script>
+</body>
+</html>
