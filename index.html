@@ -6,18 +6,20 @@
 <title>🌡️ Nhiệt Kế Logger — BV Đà Nẵng</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════ TOKENS ═══════════════════════ */
 :root {
   --f:'DM Sans',system-ui,sans-serif; --fm:'DM Mono',monospace;
-  --navy:#0f2744; --navy2:#1a4a7c; --blue:#2563eb; --blu:#dbeafe; --blux:#eff6ff;
-  --teal:#0891b2; --teal-lt:#e0f2fe;
-  --green:#059669; --green-lt:#d1fae5;
-  --amber:#d97706; --amber-lt:#fef3c7;
-  --red:#dc2626; --red-lt:#fee2e2;
+  --navy:#0d9488; --navy2:#06b6d4; --blue:#3b82f6; --blu:#dbeafe; --blux:#eff6ff;
+  --teal:#06b6d4; --teal-lt:#cffafe;
+  --green:#10b981; --green-lt:#d1fae5;
+  --amber:#f59e0b; --amber-lt:#fef3c7;
+  --red:#ef4444; --red-lt:#fee2e2;
   --cold:#0ea5e9; --cold-lt:#e0f2fe;
-  --bg:#f0f4f9; --surf:#fff; --s2:#f8fafc; --bdr:#e2e8f0; --bdr2:#cbd5e1;
+  --mint:#34d399; --violet:#8b5cf6; --violet-lt:#ede9fe;
+  --bg:#eef7f7; --surf:#fff; --s2:#f5fafa; --bdr:#e1edee; --bdr2:#bfe2e6;
   --t1:#0f172a; --t2:#475569; --t3:#94a3b8;
   --sw:260px; --th:54px; --bnh:66px;
 }
@@ -33,26 +35,26 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);min-height:100%;-
 /* ═══════════ TOPBAR ═══════════ */
 .tb{
   position:sticky;top:0;z-index:400;height:var(--th);
-  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  background:linear-gradient(120deg,var(--navy) 0%,var(--navy2) 65%,#22d3ee 100%);
   display:flex;align-items:center;padding:0 16px;gap:12px;
-  box-shadow:0 2px 16px rgba(15,39,68,.45);
+  box-shadow:0 2px 16px rgba(13,148,136,.35);
 }
 .tb-logo{
   width:36px;height:36px;border-radius:9px;
-  background:linear-gradient(135deg,#3b82f6,var(--teal));
+  background:linear-gradient(135deg,#5eead4,#3b82f6);
   display:flex;align-items:center;justify-content:center;
   font-size:18px;flex-shrink:0;box-shadow:0 3px 10px rgba(59,130,246,.4);
 }
 .tb-info{flex:1;min-width:0}
 .tb-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px}
-.tb-sub{font-size:10px;color:#93bbdc;font-weight:500}
+.tb-sub{font-size:10px;color:#bdf4ee;font-weight:500}
 .tb-acts{display:flex;align-items:center;gap:6px;margin-left:auto}
-.zc{display:flex;align-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;overflow:hidden}
-.zb{width:26px;height:26px;border:none;background:none;color:#9ab8d4;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--f);display:flex;align-items:center;justify-content:center;transition:all .12s}
-.zb:hover{background:rgba(255,255,255,.14);color:#fff}
-.zl{font-size:10px;font-weight:700;color:#9ab8d4;padding:0 5px;min-width:36px;text-align:center;font-family:var(--fm);border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1)}
-.mb{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#9ab8d4;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--f);transition:all .15s;white-space:nowrap}
-.mb:hover{background:rgba(255,255,255,.14);color:#fff}
+.zc{display:flex;align-items:center;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:7px;overflow:hidden}
+.zb{width:26px;height:26px;border:none;background:none;color:#e6fffb;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--f);display:flex;align-items:center;justify-content:center;transition:all .12s}
+.zb:hover{background:rgba(255,255,255,.18);color:#fff}
+.zl{font-size:10px;font-weight:700;color:#e6fffb;padding:0 5px;min-width:36px;text-align:center;font-family:var(--fm);border-left:1px solid rgba(255,255,255,.14);border-right:1px solid rgba(255,255,255,.14)}
+.mb{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#e6fffb;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--f);transition:all .15s;white-space:nowrap}
+.mb:hover{background:rgba(255,255,255,.2);color:#fff}
 
 /* ═══════════ SHELL ═══════════ */
 .shell{display:flex;min-height:calc(100vh - var(--th))}
@@ -105,9 +107,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);min-height:100%;-
 @keyframes su{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* ═══════════ CARDS ═══════════ */
-.card{background:var(--surf);border-radius:14px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 1px 6px rgba(15,39,68,.05)}
+.card{background:var(--surf);border-radius:14px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 1px 6px rgba(13,148,136,.06)}
 .card-h{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--bdr);background:var(--s2)}
-.badge{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.badge{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .card-t{font-size:13.5px;font-weight:700;color:var(--t1)}
 .card-b{padding:16px}
 
@@ -121,7 +123,7 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);min-height:100%;-
 .dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:9px;margin-top:13px}
 .dc{border:1.5px solid var(--bdr);border-radius:11px;padding:11px 13px;cursor:pointer;transition:all .15s;position:relative;background:var(--s2)}
 .dc:hover{border-color:var(--blue);background:var(--blux)}
-.dc.sel{border-color:var(--blue);background:var(--blux);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.dc.sel{border-color:var(--blue);background:var(--blux);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
 .dc.fr:hover{border-color:var(--cold);background:var(--cold-lt)}
 .dc.fr.sel{border-color:var(--cold);background:var(--cold-lt);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
 .dc-n{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:3px}
@@ -142,35 +144,70 @@ body{font-family:var(--f);background:var(--bg);color:var(--t1);min-height:100%;-
 .f{display:flex;flex-direction:column;gap:4px}
 .f label{font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.2px}
 .inp{width:100%;padding:8px 11px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;color:var(--t1);font-family:var(--f);font-weight:500;outline:none;transition:border .15s,box-shadow .15s;background:var(--surf)}
-.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
 .inp[type=datetime-local],.inp[type=date]{font-family:var(--fm);font-size:12px}
 .tg{display:flex;border:1.5px solid var(--bdr);border-radius:9px;overflow:hidden}
 .tgo{flex:1;padding:8px 12px;border:none;background:var(--s2);font-size:12.5px;font-weight:600;cursor:pointer;color:var(--t2);font-family:var(--f);transition:all .18s;text-align:center}
-.tgo.on{background:var(--navy);color:#fff}
+.tgo.on{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}
 .tgo.fr-on{background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff}
 .src-tg{display:flex;gap:7px;flex-wrap:wrap}
 .srb{padding:8px 14px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--s2);font-size:12px;font-weight:600;cursor:pointer;color:var(--t2);font-family:var(--f);transition:all .15s}
-.srb.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.srb.on{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:var(--navy)}
+
+/* ═══════════ CANVAS NAV (chế độ nhập dữ liệu) ═══════════ */
+.cv-nav{display:flex;gap:4px;padding:4px;background:var(--bg);border:1px solid var(--bdr);border-radius:13px}
+.cv-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:none;background:none;cursor:pointer;font-family:var(--f);color:var(--t2);transition:all .18s;text-align:center;font-size:12px;font-weight:700;white-space:nowrap}
+.cv-tab .ci{font-size:15px;line-height:1}
+.cv-tab:hover{color:var(--t1)}
+.cv-tab.on{background:var(--surf);color:var(--navy);box-shadow:0 2px 8px rgba(13,148,136,.18)}
+
+/* ═══════════ COMPACT DATE-RANGE ROW ═══════════ */
+.dr-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding:9px 12px;background:var(--s2);border:1px solid var(--bdr);border-radius:10px}
+.dr-lbl{font-size:12px;font-weight:700;color:var(--t2);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.dr-inputs{display:flex;align-items:center;gap:6px;flex:1;min-width:190px}
+.dr-inputs .inp{flex:1;min-width:0}
+.dr-arrow{color:var(--t3);font-size:12px;font-weight:700}
 
 /* ═══════════ DROP ZONE ═══════════ */
-.dz{border:2px dashed var(--bdr2);border-radius:11px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;background:var(--s2);display:flex;flex-direction:column;align-items:center;gap:5px}
+.dz{border:2px dashed var(--bdr2);border-radius:11px;padding:14px;text-align:center;cursor:pointer;transition:all .18s;background:var(--s2);display:flex;flex-direction:column;align-items:center;gap:5px}
 .dz:hover,.dz.drag{border-color:var(--blue);background:var(--blux)}
 .dz.ok{border-style:solid;border-color:var(--green);background:#f0fdf4}
 .dz input{display:none}
-.dz-icon{font-size:24px}
+.dz-icon{font-size:22px}
 .dz-lbl{font-size:13px;font-weight:700;color:var(--t1)}
 .dz-hint{font-size:11px;color:var(--t3)}
 .dz-fn{font-size:11px;color:var(--green);font-weight:700;margin-top:3px}
+
+/* ═══════════ BATCH FILE LIST ═══════════ */
+.bfl{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.bfi{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1.5px solid var(--bdr);border-radius:10px;background:var(--s2);flex-wrap:wrap}
+.bfi-ico{font-size:18px;flex-shrink:0}
+.bfi-info{flex:1;min-width:140px}
+.bfi-name{font-size:12px;font-weight:700;color:var(--t1);word-break:break-all}
+.bfi-meta{font-size:10.5px;color:var(--t3);font-family:var(--fm);margin-top:1px}
+.bfi-sel{min-width:160px;flex:1}
+.bfi-sel select{width:100%;padding:7px 9px;border:1.5px solid var(--bdr);border-radius:8px;font-size:12px;color:var(--t1);font-family:var(--f);font-weight:600;outline:none;background:var(--surf)}
+.bfi-rm{width:28px;height:28px;border-radius:7px;border:none;background:var(--red-lt);color:var(--red);font-size:13px;cursor:pointer;flex-shrink:0}
+.bfi.err{border-color:#fca5a5;background:var(--red-lt)}
+.bfi.ok{border-color:#86efac}
+
+/* ═══════════ BATCH RESULT LIST ═══════════ */
+.brl{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.bri{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:10px;background:var(--surf);flex-wrap:wrap}
+.bri-tag{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--blu);color:var(--blue)}
+.bri-tag.c{background:var(--cold-lt);color:var(--cold)}
+.bri-name{font-size:12.5px;font-weight:700;color:var(--t1)}
+.bri-meta{font-size:10.5px;color:var(--t3);font-family:var(--fm);width:100%}
 
 /* ═══════════ BUTTONS ═══════════ */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 16px;height:40px;border-radius:9px;border:none;font-family:var(--f);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .12s;white-space:nowrap}
 .btn:active{transform:scale(.96)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
-.btn-navy{background:var(--navy);color:#fff;box-shadow:0 3px 10px rgba(15,39,68,.2)}
-.btn-navy:hover{background:var(--navy2)}
-.btn-blue{background:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(37,99,235,.28)}
-.btn-teal{background:var(--teal);color:#fff;box-shadow:0 3px 10px rgba(8,145,178,.25)}
-.btn-green{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(5,150,105,.25)}
+.btn-navy{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 3px 10px rgba(13,148,136,.28)}
+.btn-navy:hover{filter:brightness(1.07)}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(59,130,246,.28)}
+.btn-teal{background:var(--teal);color:#fff;box-shadow:0 3px 10px rgba(6,182,212,.28)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(16,185,129,.28)}
 .btn-ghost{background:var(--surf);color:var(--t2);border:1.5px solid var(--bdr)}
 .btn-ghost:hover{background:var(--s2)}
 .btn-danger{background:var(--red-lt);color:var(--red);border:1.5px solid #fca5a5}
@@ -236,7 +273,7 @@ table.pt tr:last-child td{border-bottom:none}
 .dl-hd{width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 16px}
 .dl-t{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:5px}
 .dl-s{font-size:12px;color:var(--t2);margin-bottom:16px}
-.dl-a{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--blue),var(--navy2));color:#fff;text-decoration:none;font-family:var(--f);font-size:15px;font-weight:700;padding:15px;border-radius:12px;margin-bottom:10px;box-shadow:0 4px 16px rgba(37,99,235,.35)}
+.dl-a{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--blue),var(--navy2));color:#fff;text-decoration:none;font-family:var(--f);font-size:15px;font-weight:700;padding:15px;border-radius:12px;margin-bottom:10px;box-shadow:0 4px 16px rgba(59,130,246,.35)}
 
 /* ═══════════ LAYOUT MODES ═══════════ */
 .mobile-layout .shell{flex-direction:column;max-width:600px;margin:0 auto}
@@ -245,6 +282,8 @@ table.pt tr:last-child td{border-bottom:none}
 .mobile-layout .bnav{display:flex}
 .mobile-layout .fr4{grid-template-columns:1fr 1fr}
 .mobile-layout .fr3{grid-template-columns:1fr 1fr}
+.mobile-layout .cv-tab{flex-direction:column;gap:3px;font-size:10.5px;padding:8px 4px;white-space:normal;line-height:1.25}
+.mobile-layout .cv-tab .ci{font-size:17px}
 .pc-layout .bnav{display:none}
 .pc-layout .ct{padding:22px 28px}
 .pc-layout .shell{min-height:calc(100vh - var(--th))}
@@ -425,12 +464,10 @@ table.pt tr:last-child td{border-bottom:none}
   <div class="card">
     <div class="card-h"><div class="badge">3</div><div class="card-t">Nguồn dữ liệu &amp; thời gian</div></div>
     <div class="card-b">
-      <div class="f" style="margin-bottom:12px">
-        <label>Chế độ nhập</label>
-        <div class="src-tg">
-          <button class="srb on" id="src-auto" onclick="setSrc('auto')">⚙️ Tạo ngẫu nhiên</button>
-          <button class="srb" id="src-file" onclick="setSrc('file')">📂 Đọc từ file</button>
-        </div>
+      <div class="cv-nav" style="margin-bottom:12px">
+        <button class="cv-tab on" id="src-auto" onclick="setSrc('auto')"><span class="ci">⚙️</span><span>Tạo ngẫu nhiên</span></button>
+        <button class="cv-tab" id="src-file" onclick="setSrc('file')"><span class="ci">📂</span><span>Đọc từ file</span></button>
+        <button class="cv-tab" id="src-batch" onclick="setSrc('batch')"><span class="ci">📦</span><span>Nhiều file (Batch)</span></button>
       </div>
       <div id="pan-auto">
         <div class="fr2" style="margin-bottom:10px">
@@ -448,10 +485,32 @@ table.pt tr:last-child td{border-bottom:none}
           <input type="file" id="fi" accept=".xlsx,.xls,.csv">
         </div>
         <div class="notice n-ok hidden mt8" id="fi-notice"></div>
-        <div class="fr2 mt8">
-          <div class="f"><label>Lọc từ ngày</label><input type="date" class="inp" id="fFrom"></div>
-          <div class="f"><label>Lọc đến ngày</label><input type="date" class="inp" id="fTo"></div>
+        <div class="dr-row">
+          <div class="dr-lbl">📅 Chế độ chọn ngày</div>
+          <div class="dr-inputs">
+            <input type="date" class="inp" id="fFrom" title="Từ ngày">
+            <span class="dr-arrow">→</span>
+            <input type="date" class="inp" id="fTo" title="Đến ngày">
+          </div>
         </div>
+      </div>
+      <div id="pan-batch" class="hidden">
+        <div class="dz" id="dzB" onclick="document.getElementById('fiB').click()">
+          <div class="dz-icon">📦</div>
+          <div class="dz-lbl">Kéo thả hoặc nhấn để chọn NHIỀU file</div>
+          <div class="dz-hint">Mỗi file ứng với 1 kho/tủ · .xlsx từ nhiệt kế · Cột: Time | Temperature°C | Humidity%</div>
+          <input type="file" id="fiB" accept=".xlsx,.xls,.csv" multiple>
+        </div>
+        <div class="bfl" id="bfl"></div>
+        <div class="dr-row">
+          <div class="dr-lbl">📅 Chế độ chọn ngày — tất cả file</div>
+          <div class="dr-inputs">
+            <input type="date" class="inp" id="bFrom" title="Từ ngày">
+            <span class="dr-arrow">→</span>
+            <input type="date" class="inp" id="bTo" title="Đến ngày">
+          </div>
+        </div>
+        <div class="notice n-info mt8">ℹ️ Chọn kho/tủ tương ứng cho mỗi file ở danh sách trên (mặc định gán theo thứ tự thiết bị đã lưu), rồi nhấn <b>"Xử lý & Tạo báo cáo"</b> ở bước 4. Tủ lạnh dùng đủ các mẫu báo cáo hiện có; Kho thường không có cột Cao nhất/Thấp nhất trong Phiếu theo dõi.</div>
       </div>
     </div>
   </div>
@@ -471,6 +530,14 @@ table.pt tr:last-child td{border-bottom:none}
         </div>
         <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Xem trước 50 dòng</div>
         <div class="tw"><table class="pt" id="prev-tbl"></table></div>
+      </div>
+      <div id="result-batch" class="hidden mt12">
+        <div class="notice n-ok" id="batch-summary" style="margin-bottom:10px"></div>
+        <div class="row no-print" style="margin-bottom:10px">
+          <button class="btn btn-blue" onclick="dlBatchZip()">📦 Xuất tất cả (.zip)</button>
+          <button class="btn btn-ghost" onclick="resetAll()">🔄 Làm lại</button>
+        </div>
+        <div class="brl" id="brl"></div>
       </div>
     </div>
   </div>
@@ -751,7 +818,7 @@ function filterK(k){
   renderDG();
 }
 function selDev(id){
-  selId=id; renderDG();
+  selId=id; cfgOverride=null; renderDG();
   const d=devices.find(x=>x.id===id); if(!d)return;
   document.getElementById('serial').value=d.serial;
   document.getElementById('model').value=d.model;
@@ -826,42 +893,56 @@ function setSrc(s){
   curSrc=s;
   document.getElementById('src-auto').classList.toggle('on',s==='auto');
   document.getElementById('src-file').classList.toggle('on',s==='file');
+  document.getElementById('src-batch').classList.toggle('on',s==='batch');
   document.getElementById('pan-auto').classList.toggle('hidden',s!=='auto');
   document.getElementById('pan-file').classList.toggle('hidden',s!=='file');
+  document.getElementById('pan-batch').classList.toggle('hidden',s!=='batch');
+  document.getElementById('gen-btn').innerHTML = s==='batch'
+    ? '⚙️ Xử lý &amp; tạo báo cáo cho tất cả'
+    : '⚙️ Tạo &amp; xem trước dữ liệu';
+  document.getElementById('result-quick').classList.add('hidden');
+  document.getElementById('result-batch').classList.add('hidden');
+  document.getElementById('err-box').classList.add('hidden');
 }
 const dz=document.getElementById('dz');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0])});
 document.getElementById('fi').addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
+
+// Phân tích 1 workbook → mảng {ts,temp,hum} — dùng chung cho chế độ 1 file & nhiều file
+function parseWorkbookRows(wb){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const raw=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+  let hi=-1;
+  for(let i=0;i<Math.min(raw.length,10);i++){
+    const r=raw[i].map(c=>(c||'').toString().toLowerCase());
+    if(r.some(c=>c.includes('time')||c.includes('thời'))){hi=i;break;}
+  }
+  if(hi===-1)hi=2;
+  const hdrs=(raw[hi]||[]).map(c=>(c||'').toString().toLowerCase());
+  const tC=hdrs.findIndex(c=>c.includes('time')||c.includes('thời'));
+  const tempC=hdrs.findIndex(c=>c.includes('temp'));
+  const humC=hdrs.findIndex(c=>c.includes('hum')||c.includes('rh')||c.includes('%'));
+  const parsed=[];
+  for(let i=hi+1;i<raw.length;i++){
+    const row=raw[i];
+    const tRaw=(row[tC]||'').toString().trim();
+    const temp=parseFloat(row[tempC]);
+    if(!tRaw||isNaN(temp))continue;
+    const d=new Date(tRaw);
+    if(isNaN(d))continue;
+    const hum=humC>=0?parseFloat(row[humC]):null;
+    parsed.push({ts:d,temp,hum});
+  }
+  return parsed;
+}
 function loadFile(file){
   const reader=new FileReader();
   reader.onload=e=>{
     try{
       const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const raw=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
-      let hi=-1;
-      for(let i=0;i<Math.min(raw.length,10);i++){
-        const r=raw[i].map(c=>(c||'').toString().toLowerCase());
-        if(r.some(c=>c.includes('time')||c.includes('thời'))){hi=i;break;}
-      }
-      if(hi===-1)hi=2;
-      const hdrs=raw[hi].map(c=>(c||'').toString().toLowerCase());
-      const tC=hdrs.findIndex(c=>c.includes('time')||c.includes('thời'));
-      const tempC=hdrs.findIndex(c=>c.includes('temp'));
-      const humC=hdrs.findIndex(c=>c.includes('hum')||c.includes('rh')||c.includes('%'));
-      const parsed=[];
-      for(let i=hi+1;i<raw.length;i++){
-        const row=raw[i];
-        const tRaw=(row[tC]||'').toString().trim();
-        const temp=parseFloat(row[tempC]);
-        if(!tRaw||isNaN(temp))continue;
-        const d=new Date(tRaw);
-        if(isNaN(d))continue;
-        const hum=humC>=0?parseFloat(row[humC]):null;
-        parsed.push({ts:d,temp,hum});
-      }
+      const parsed=parseWorkbookRows(wb);
       if(!parsed.length){alert('Không đọc được dữ liệu');return;}
       fileData=parsed; dz.classList.add('ok');
       const fn=document.getElementById('dzfn');
@@ -875,13 +956,65 @@ function loadFile(file){
 }
 
 // ══════════════════════════════════════════════════════
+// BATCH — NẠP NHIỀU FILE, MỖI FILE = 1 KHO/TỦ
+// ══════════════════════════════════════════════════════
+let batchFiles=[]; // {name, rows, error, deviceId}
+let batchResults=[]; // {device, cfg, rows, s, daily, fname}
+const dzB=document.getElementById('dzB');
+dzB.addEventListener('dragover',e=>{e.preventDefault();dzB.classList.add('drag')});
+dzB.addEventListener('dragleave',()=>dzB.classList.remove('drag'));
+dzB.addEventListener('drop',e=>{e.preventDefault();dzB.classList.remove('drag');if(e.dataTransfer.files.length)loadBatchFiles(e.dataTransfer.files)});
+document.getElementById('fiB').addEventListener('change',e=>{if(e.target.files.length)loadBatchFiles(e.target.files);e.target.value='';});
+function loadBatchFiles(fileList){
+  Array.from(fileList).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const entry={name:file.name,rows:null,error:null,deviceId:null};
+      try{
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+        const parsed=parseWorkbookRows(wb);
+        if(!parsed.length) throw new Error('Không đọc được dữ liệu từ file');
+        entry.rows=parsed;
+        const used=batchFiles.map(f=>f.deviceId).filter(Boolean);
+        const free=devices.find(d=>!used.includes(d.id));
+        entry.deviceId=free?free.id:(devices[0]?devices[0].id:null);
+      }catch(err){entry.error=err.message;}
+      batchFiles.push(entry);
+      renderBFL();
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+function renderBFL(){
+  const wrap=document.getElementById('bfl');
+  if(!batchFiles.length){wrap.innerHTML='';return;}
+  wrap.innerHTML=batchFiles.map((f,i)=>{
+    if(f.error){
+      return `<div class="bfi err"><div class="bfi-ico">⚠️</div><div class="bfi-info"><div class="bfi-name">${f.name}</div><div class="bfi-meta">${f.error}</div></div><button class="bfi-rm" onclick="rmBatchFile(${i})">✕</button></div>`;
+    }
+    const opts=devices.map(d=>`<option value="${d.id}"${d.id===f.deviceId?' selected':''}>${d.mode==='fridge'?'❄️':'🏭'} ${d.khoName} (${d.serial})</option>`).join('');
+    return `<div class="bfi ok">
+      <div class="bfi-ico">📄</div>
+      <div class="bfi-info"><div class="bfi-name">${f.name}</div><div class="bfi-meta">${f.rows.length} dòng · ${fmtTS(f.rows[0].ts)} → ${fmtTS(f.rows[f.rows.length-1].ts)}</div></div>
+      <div class="bfi-sel"><select onchange="setBatchDev(${i},this.value)">${opts||'<option value="">— Chưa có kho —</option>'}</select></div>
+      <button class="bfi-rm" onclick="rmBatchFile(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+function setBatchDev(i,id){batchFiles[i].deviceId=id||null;}
+function rmBatchFile(i){batchFiles.splice(i,1);renderBFL();}
+
+
+// ══════════════════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════════════════
 function r1(a,b){return parseFloat((Math.random()*(b-a)+a).toFixed(1))}
 function pad(n){return String(n).padStart(2,'0')}
 function fmtTS(d){return pad(d.getFullYear())+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
 function fmtDisp(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+let cfgOverride=null; // dùng khi xem trước/xuất dữ liệu của 1 kho trong chế độ Batch
 function getCfg(){
+  if(cfgOverride) return cfgOverride;
   const d=selId?devices.find(x=>x.id===selId):null;
   return{
     serial:document.getElementById('serial').value.trim()||(d&&d.serial)||'N/A',
@@ -892,6 +1025,14 @@ function getCfg(){
     alarmHH:parseFloat(document.getElementById('alarmHH').value||100),
     alarmHL:parseFloat(document.getElementById('alarmHL').value||10),
     mode:(d&&d.mode)||'fridge',
+    khoName:(d&&d.khoName)||'',
+  };
+}
+function cfgFromDevice(d){
+  return{
+    serial:d.serial, model:d.model, tripDesc:d.trip,
+    alarmH:d.alarmH, alarmL:d.alarmL, alarmHH:d.alarmHH, alarmHL:d.alarmHL,
+    mode:d.mode, khoName:d.khoName,
   };
 }
 
@@ -901,19 +1042,136 @@ function getCfg(){
 function generate(){
   document.getElementById('err-box').classList.add('hidden');
   document.getElementById('result-quick').classList.add('hidden');
+  document.getElementById('result-batch').classList.add('hidden');
   const btn=document.getElementById('gen-btn');
   btn.disabled=true; btn.textContent='⏳ Đang xử lý…';
   setTimeout(()=>{
     try{
-      rows=curSrc==='auto'?genAuto():genFile();
-      if(!rows||!rows.length){showErr('Không có dữ liệu');return;}
-      renderQuick(); document.getElementById('result-quick').classList.remove('hidden');
+      if(curSrc==='batch'){
+        processBatch();
+        document.getElementById('result-batch').classList.remove('hidden');
+      } else {
+        cfgOverride=null;
+        rows=curSrc==='auto'?genAuto():genFile();
+        if(!rows||!rows.length){showErr('Không có dữ liệu');return;}
+        renderQuick(); document.getElementById('result-quick').classList.remove('hidden');
+      }
     }catch(e){showErr(e.message);}
     finally{btn.disabled=false;btn.innerHTML='⚙️ Tạo &amp; xem trước dữ liệu';}
   },50);
 }
 function showErr(m){const b=document.getElementById('err-box');b.textContent='⚠️ '+m;b.classList.remove('hidden')}
-function resetAll(){document.getElementById('result-quick').classList.add('hidden');document.getElementById('err-box').classList.add('hidden');rows=[]}
+function resetAll(){
+  document.getElementById('result-quick').classList.add('hidden');
+  document.getElementById('result-batch').classList.add('hidden');
+  document.getElementById('err-box').classList.add('hidden');
+  rows=[]; batchResults=[]; cfgOverride=null;
+}
+
+// ══════════════════════════════════════════════════════
+// BATCH — XỬ LÝ TẤT CẢ FILE ĐÃ NẠP THEO KHO/TỦ ĐÃ GÁN
+// ══════════════════════════════════════════════════════
+function processBatch(){
+  const valid=batchFiles.filter(f=>f.rows&&f.deviceId);
+  if(!valid.length) throw new Error('Chưa có file hợp lệ hoặc chưa gán kho/tủ cho file nào');
+  const fv=document.getElementById('bFrom').value, tv=document.getElementById('bTo').value;
+  batchResults=valid.map(f=>{
+    const d=devices.find(x=>x.id===f.deviceId);
+    let r=f.rows;
+    if(fv){const dt=new Date(fv);r=r.filter(x=>x.ts>=dt);}
+    if(tv){const dt=new Date(tv);dt.setHours(23,59,59,999);r=r.filter(x=>x.ts<=dt);}
+    const fn=d.mode==='normal',hMn=fn?60:98,hMx=fn?75:100;
+    r=r.map(x=>({ts:x.ts,temp:x.temp,hum:(x.hum!=null&&!isNaN(x.hum))?x.hum:r1(hMn,hMx)}));
+    const cfg=cfgFromDevice(d);
+    const s=r.length?getStatsCore(r,cfg):null;
+    const daily=r.length?getDailyStatsCore(r,cfg):[];
+    return {device:d, cfg, rows:r, s, daily, fname:f.name};
+  });
+  renderBRL();
+}
+function renderBRL(){
+  const wrap=document.getElementById('brl');
+  const sum=document.getElementById('batch-summary');
+  const okList=batchResults.filter(b=>b.rows.length);
+  const emptyList=batchResults.filter(b=>!b.rows.length);
+  sum.innerHTML=`✅ Đã xử lý <b>${batchResults.length}</b> kho/tủ`+
+    (okList.length?` · <b>${okList.length}</b> có dữ liệu`:'')+
+    (emptyList.length?` · ⚠️ <b>${emptyList.length}</b> không có dữ liệu trong khoảng ngày đã chọn`:'')+'.';
+  wrap.innerHTML=batchResults.map((b,i)=>{
+    const fr=b.device.mode==='fridge';
+    const tagTxt=fr?'❄️ Tủ lạnh':'🏭 Kho thường';
+    if(!b.rows.length){
+      return `<div class="bri"><span class="bri-tag${fr?' c':''}">${tagTxt}</span><span class="bri-name">${b.device.khoName}</span><div class="bri-meta">⚠️ Không có dữ liệu trong khoảng ngày đã chọn — file: ${b.fname}</div></div>`;
+    }
+    return `<div class="bri">
+      <span class="bri-tag${fr?' c':''}">${tagTxt}</span>
+      <span class="bri-name">${b.device.khoName}</span>
+      <span style="font-size:11px;color:var(--t3);font-family:var(--fm)">${b.cfg.serial}</span>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="previewBatchItem(${i})">👁️ Xem trước &amp; xuất</button>
+      <div class="bri-meta">${b.rows.length} bản ghi · ${b.s.minT}–${b.s.maxT}°C · ${fmtTS(b.rows[0].ts)} → ${fmtTS(b.rows[b.rows.length-1].ts)} · file: ${b.fname}</div>
+    </div>`;
+  }).join('');
+}
+function previewBatchItem(i){
+  const b=batchResults[i];
+  if(!b.rows.length){alert('Kho/tủ này không có dữ liệu trong khoảng ngày đã chọn');return;}
+  rows=b.rows; selId=b.device.id; cfgOverride=b.cfg;
+  showPanel('p-rpt'); setTimeout(renderPreviews,100);
+}
+
+// ══════════════════════════════════════════════════════
+// XUẤT TẤT CẢ KẾT QUẢ BATCH RA 1 FILE .ZIP
+// Mỗi kho/tủ → 1 thư mục riêng:
+//  - Tủ lạnh:   DataReport, SummaryReport, ElitechReport, PhieuTD (đủ mẫu đã có)
+//  - Kho thường: DataReport, SummaryReport, PhieuTD (không Cao nhất/Thấp nhất)
+// ══════════════════════════════════════════════════════
+async function dlBatchZip(){
+  const okList = batchResults.filter(b=>b.rows.length);
+  if(!okList.length){ alert('Không có dữ liệu để xuất'); return; }
+  if(typeof JSZip === 'undefined'){ alert('Không tải được thư viện đóng gói ZIP — kiểm tra kết nối mạng và thử lại'); return; }
+  const btn = document.querySelector('#result-batch .btn-blue');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Đang đóng gói…'; }
+  try{
+    const zip = new JSZip();
+    okList.forEach(b=>{
+      const folder = zip.folder(b.device.khoName.replace(/[\\/:*?"<>|]/g,'_') || b.cfg.serial);
+      const isFridge = b.cfg.mode !== 'normal';
+
+      const wbData = buildDataReportWb(b.s, b.rows);
+      folder.file(`${b.cfg.serial}_DataReport.xlsx`, XLSX.write(wbData,{bookType:'xlsx',type:'array'}));
+
+      const wbSum = buildSummaryWb(b.s, b.daily);
+      folder.file(`${b.cfg.serial}_SummaryReport.xlsx`, XLSX.write(wbSum,{bookType:'xlsx',type:'array'}));
+
+      if(isFridge){
+        const wbEli = buildElitechWb(b.s, b.rows);
+        folder.file(`${b.cfg.serial}_ElitechReport.xlsx`, XLSX.write(wbEli,{bookType:'xlsx',type:'array'}));
+      }
+
+      const { wb: wbPtd, sortedMonths } = buildPhieuTDWb(b.rows, b.cfg);
+      if(wbPtd.SheetNames.length){
+        folder.file(`PhieuTD_${b.cfg.serial}_${sortedMonths.join('_')}.xlsx`, XLSX.write(wbPtd,{bookType:'xlsx',type:'array'}));
+      }
+    });
+    const blob = await zip.generateAsync({type:'blob'});
+    const fname = `BaoCao_NhietKe_${fmtTS(new Date()).slice(0,10)}.zip`;
+    if(isMob()){
+      const url=URL.createObjectURL(blob);
+      document.getElementById('dl-t').textContent='Tải file ZIP';
+      document.getElementById('dl-s').textContent='Nhấn và giữ nút → chọn "Tải về"';
+      document.getElementById('dl-ico').textContent='📦';
+      document.getElementById('dl-fn').textContent=fname;
+      const dl=document.getElementById('dl-a');dl.href=url;dl.download=fname;
+      const m=document.getElementById('dlm');m.style.display='flex';m._url=url;
+    } else {
+      saveAs(blob, fname);
+    }
+  }catch(e){
+    alert('Lỗi khi đóng gói ZIP: '+e.message);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='📦 Xuất tất cả (.zip)'; }
+  }
+}
 
 function genAuto(){
   const cfg=getCfg();
@@ -963,24 +1221,25 @@ function renderQuick(){
 // ══════════════════════════════════════════════════════
 // STATS HELPER
 // ══════════════════════════════════════════════════════
-function getStats(){
-  const cfg=getCfg();
-  const temps=rows.map(r=>r.temp),hums=rows.map(r=>r.hum);
+function getStats(){ return getStatsCore(rows, getCfg()); }
+function getStatsCore(rws, cfg){
+  const temps=rws.map(r=>r.temp),hums=rws.map(r=>r.hum);
   const maxT=parseFloat(Math.max(...temps).toFixed(1)),minT=parseFloat(Math.min(...temps).toFixed(1));
   const avgT=parseFloat((temps.reduce((a,b)=>a+b,0)/temps.length).toFixed(1));
   const maxH=parseFloat(Math.max(...hums).toFixed(1)),minH=parseFloat(Math.min(...hums).toFixed(1));
   const avgH=parseFloat((hums.reduce((a,b)=>a+b,0)/hums.length).toFixed(1));
-  const s=fmtTS(rows[0].ts),e=fmtTS(rows[rows.length-1].ts);
-  const now=fmtTS(new Date()),total=rows.length;
-  const ms=rows[rows.length-1].ts-rows[0].ts;
+  const s=fmtTS(rws[0].ts),e=fmtTS(rws[rws.length-1].ts);
+  const now=fmtTS(new Date()),total=rws.length;
+  const ms=rws[rws.length-1].ts-rws[0].ts;
   const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);
   const dur=`${d}d ${h}h ${m}m`;
   const tA=temps.some(t=>t>cfg.alarmH||t<cfg.alarmL),hA=hums.some(h=>h>cfg.alarmHH||h<cfg.alarmHL);
   return{...cfg,maxT,minT,avgT,maxH,minH,avgH,startT:s,stopT:e,now,total,dur,tA,hA};
 }
-function getDailyStats(cfg){
+function getDailyStats(cfg){ return getDailyStatsCore(rows, cfg); }
+function getDailyStatsCore(rws, cfg){
   const byDate={};
-  rows.forEach(r=>{
+  rws.forEach(r=>{
     const dk=pad(r.ts.getFullYear())+'-'+pad(r.ts.getMonth()+1)+'-'+pad(r.ts.getDate());
     if(!byDate[dk])byDate[dk]={temps:[],hums:[]};
     byDate[dk].temps.push(r.temp);byDate[dk].hums.push(r.hum);
@@ -1394,9 +1653,8 @@ function requireData(){if(!rows.length){alert('Tạo dữ liệu trước (bư�
 // ══════════════════════════════════════════════════════
 // DOWNLOAD DATA REPORT
 // ══════════════════════════════════════════════════════
-function dlDataReport(){
-  if(!requireData())return;
-  const s=getStats();
+function buildDataReportWb(s, rws){
+  rws = rws || rows;
   const wb=XLSX.utils.book_new();
   const info=[
     ['Data Report','','','',`File created on: ${s.now}`],[],
@@ -1428,18 +1686,22 @@ function dlDataReport(){
   ws['!cols']=[{wch:28},{wch:22},{wch:5},{wch:28},{wch:22}];
   XLSX.utils.book_append_sheet(wb,ws,'DeviceInfo');
   const raw=[['No.','Time','Temperature°C','Humidity%']];
-  rows.forEach((r,i)=>raw.push([i+1,fmtTS(r.ts),r.temp,r.hum]));
+  rws.forEach((r,i)=>raw.push([i+1,fmtTS(r.ts),r.temp,r.hum]));
   const ws2=XLSX.utils.aoa_to_sheet(raw);ws2['!cols']=[{wch:6},{wch:22},{wch:16},{wch:12}];
   XLSX.utils.book_append_sheet(wb,ws2,'Data');
+  return wb;
+}
+function dlDataReport(){
+  if(!requireData())return;
+  const s=getStats();
+  const wb=buildDataReportWb(s, rows);
   xlDL(wb,`${s.serial}_DataReport.xlsx`);
 }
 
 // ══════════════════════════════════════════════════════
 // DOWNLOAD SUMMARY
 // ══════════════════════════════════════════════════════
-function dlSummary(){
-  if(!requireData())return;
-  const s=getStats(),daily=getDailyStats(s);
+function buildSummaryWb(s, daily){
   const wb=XLSX.utils.book_new();
   const sum=[
     ['BỆNH VIỆN ĐÀ NẴNG','','','','','','','','ĐDNĐ.01'],['KHOA DƯỢC'],[],
@@ -1473,15 +1735,20 @@ function dlSummary(){
   const ws2=XLSX.utils.aoa_to_sheet(dh);
   ws2['!cols']=[{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:16},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws2,'ThongKeNgay');
+  return wb;
+}
+function dlSummary(){
+  if(!requireData())return;
+  const s=getStats(),daily=getDailyStats(s);
+  const wb=buildSummaryWb(s,daily);
   xlDL(wb,`${s.serial}_SummaryReport.xlsx`);
 }
 
 // ══════════════════════════════════════════════════════
 // DOWNLOAD ELITECH REPORT (xlsx clone)
 // ══════════════════════════════════════════════════════
-function dlElitechReport(){
-  if(!requireData())return;
-  const s=getStats();
+function buildElitechWb(s, rws){
+  rws = rws || rows;
   const wb=XLSX.utils.book_new();
   // DeviceInfo sheet (same as Data Report)
   const info=[
@@ -1504,9 +1771,15 @@ function dlElitechReport(){
   XLSX.utils.book_append_sheet(wb,ws,'DeviceInfo');
   // Data sheet
   const raw=[['No.','Time','Temperature°C','Humidity%']];
-  rows.forEach((r,i)=>raw.push([i+1,fmtTS(r.ts),r.temp,r.hum]));
+  rws.forEach((r,i)=>raw.push([i+1,fmtTS(r.ts),r.temp,r.hum]));
   const ws2=XLSX.utils.aoa_to_sheet(raw);ws2['!cols']=[{wch:6},{wch:22},{wch:16},{wch:12}];
   XLSX.utils.book_append_sheet(wb,ws2,'Data');
+  return wb;
+}
+function dlElitechReport(){
+  if(!requireData())return;
+  const s=getStats();
+  const wb=buildElitechWb(s, rows);
   xlDL(wb,`${s.serial}_ElitechReport.xlsx`);
 }
 
@@ -1599,38 +1872,53 @@ function renderPtd(){
   const tuSo = document.getElementById('ptd-tuSo').value.trim() || '......';
   const thang = document.getElementById('ptd-thang').value.trim() || '...... năm ......';
   const kho = document.getElementById('ptd-kho').value.trim();
-  const quyDinh = ptdMode === 'fridge' ? '2°C – 8°C' : '18°C – 25°C';
+  const isFridge = ptdMode === 'fridge';
+  const quyDinh = isFridge ? '2°C – 8°C' : '18°C – 25°C';
+  const ncols = isFridge ? 8 : 6; // tổng số cột hiển thị
 
   // Build 31-row table
   let rows31 = '';
+  const extraCells = isFridge ? 6 : 4; // số ô trống sau cột Ngày
   for(let i=1;i<=31;i++){
-    rows31 += `<tr style="height:18pt">
-      <td style="text-align:center;font-weight:700;border:0.5pt solid #bbb;padding:2pt 4pt;background:${i%2===0?'#f9fbfd':'#fff'}">${i}</td>
-      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
-      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
-      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
-      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
-      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
-      <td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>
-    </tr>`;
+    let tds = `<td style="text-align:center;font-weight:700;border:0.5pt solid #bbb;padding:2pt 4pt;background:${i%2===0?'#f9fbfd':'#fff'}">${i}</td>`;
+    for(let c=0;c<extraCells;c++) tds += `<td style="border:0.5pt solid #bbb;padding:2pt 4pt"></td>`;
+    rows31 += `<tr style="height:18pt">${tds}</tr>`;
   }
+
+  const titleTxt = isFridge
+    ? 'Phiếu Theo Dõi<br>Nhiệt Độ Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin'
+    : 'Phiếu Theo Dõi<br>Nhiệt Độ Kho Bảo Quản (Nhiệt Độ Thường)';
+  const docCode = isFridge
+    ? '&nbsp;&nbsp;|&nbsp;&nbsp; <b>Mã tài liệu:</b> SOP.VC.7'
+    : '';
+  const labelTuSo = isFridge ? 'Tủ vắc xin số' : 'Mã kho/Tủ số';
+  const tempSubHeaders = isFridge
+    ? `<th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:10%">Sáng</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Chiều</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Cao nhất</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Thấp nhất</th>`
+    : `<th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:16%">Sáng</th>
+          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:16%">Chiều</th>`;
+  const noteTxt = isFridge
+    ? 'Khi nhiệt độ vượt quá giới hạn, phải điều chỉnh kịp thời, ghi lại kết quả sau khi điều chỉnh và báo cáo theo <i>Quy trình xử lý tình huống khẩn cấp vắc xin bảo quản trong tủ lạnh</i>.'
+    : 'Khi nhiệt độ ngoài khoảng quy định, phải điều chỉnh kịp thời, ghi lại kết quả sau khi điều chỉnh và báo cáo theo quy trình xử lý sự cố nhiệt độ của kho.';
+  const footerLeft = isFridge ? 'SOP.VC.7 — Ban hành: 12/08/2021' : 'Bệnh viện Đà Nẵng — Khoa Dược';
 
   const html = `<div style="font-family:Arial,sans-serif;font-size:9pt;padding:20px 28px">
     <!-- Header -->
     <table style="width:100%;border-collapse:collapse;border:1pt solid #333;margin-bottom:0">
       <tr>
         <td rowspan="3" style="width:22%;text-align:center;font-weight:700;font-size:9pt;padding:6pt 8pt;border-right:1pt solid #333;border-bottom:1pt solid #333;vertical-align:middle;line-height:1.5">BỆNH VIỆN ĐÀ NẴNG<br><span style="font-weight:400;font-size:8pt">KHOA DƯỢC</span></td>
-        <td colspan="2" style="text-align:center;font-weight:900;font-size:12pt;padding:8pt;border-bottom:0.5pt solid #ccc;letter-spacing:.3px;text-transform:uppercase;color:#1a3a5c">Phiếu Theo Dõi<br>Nhiệt Độ Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin</td>
+        <td colspan="2" style="text-align:center;font-weight:900;font-size:12pt;padding:8pt;border-bottom:0.5pt solid #ccc;letter-spacing:.3px;text-transform:uppercase;color:#1a3a5c">${titleTxt}</td>
       </tr>
       <tr>
-        <td style="padding:4pt 8pt;border-right:1pt solid #333;border-bottom:0.5pt solid #ccc;font-size:8.5pt"><b>Tủ vắc xin số:</b> <u>&nbsp;&nbsp;${tuSo}&nbsp;&nbsp;</u>${kho ? '&nbsp;&nbsp;<b>Vị trí:</b> ' + kho : ''}</td>
+        <td style="padding:4pt 8pt;border-right:1pt solid #333;border-bottom:0.5pt solid #ccc;font-size:8.5pt"><b>${labelTuSo}:</b> <u>&nbsp;&nbsp;${tuSo}&nbsp;&nbsp;</u>${kho ? '&nbsp;&nbsp;<b>Vị trí:</b> ' + kho : ''}</td>
         <td style="padding:4pt 8pt;font-size:8.5pt;border-bottom:0.5pt solid #ccc"><b>Tháng:</b> <u>&nbsp;&nbsp;${thang}&nbsp;&nbsp;</u></td>
       </tr>
       <tr>
         <td colspan="2" style="padding:4pt 8pt;font-size:8.5pt">
           <b>Quy định:</b> &nbsp; Nhiệt độ cho phép: &nbsp;
-          <span style="font-size:10pt;font-weight:700;color:#1a4a8c">${quyDinh}</span>
-          &nbsp;&nbsp;|&nbsp;&nbsp; <b>Mã tài liệu:</b> SOP.VC.7
+          <span style="font-size:10pt;font-weight:700;color:#1a4a8c">${quyDinh}</span>${docCode}
         </td>
       </tr>
     </table>
@@ -1640,28 +1928,25 @@ function renderPtd(){
       <thead>
         <tr style="background:#1a3a5c;color:#fff">
           <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:6%">Ngày</th>
-          <th colspan="4" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:46%">Nhiệt độ (°C)</th>
+          <th colspan="${isFridge?4:2}" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:46%">Nhiệt độ (°C)</th>
           <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>thực hiện</th>
           <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>kiểm tra</th>
           <th rowspan="2" style="padding:4pt 4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Ghi chú</th>
         </tr>
         <tr style="background:#2d5a8c;color:#fff">
-          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:10%">Sáng</th>
-          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Chiều</th>
-          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Cao nhất</th>
-          <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Thấp nhất</th>
+          ${tempSubHeaders}
         </tr>
       </thead>
       <tbody>${rows31}</tbody>
       <tfoot>
         <tr style="background:#e8f0f8">
-          <td colspan="7" style="padding:5pt 8pt;border:0.5pt solid #bbb;font-size:8pt;font-style:italic;color:#555">
+          <td colspan="${ncols}" style="padding:5pt 8pt;border:0.5pt solid #bbb;font-size:8pt;font-style:italic;color:#555">
             <b>Nhận xét cuối tháng:</b> ......................................................................................................................................................................................................................................
           </td>
         </tr>
         <tr>
-          <td colspan="3" style="padding:4pt 8pt;border:0.5pt solid #bbb;font-size:8pt"><b>Tổng số ngày vi phạm:</b> ...............</td>
-          <td colspan="4" style="padding:4pt 8pt;border:0.5pt solid #bbb;font-size:8pt"><b>Kết quả đánh giá tháng:</b> &nbsp;
+          <td colspan="${isFridge?3:2}" style="padding:4pt 8pt;border:0.5pt solid #bbb;font-size:8pt"><b>Tổng số ngày vi phạm:</b> ...............</td>
+          <td colspan="${isFridge?5:4}" style="padding:4pt 8pt;border:0.5pt solid #bbb;font-size:8pt"><b>Kết quả đánh giá tháng:</b> &nbsp;
             <span style="border:0.5pt solid #555;padding:1pt 8pt">Đạt</span> &nbsp;
             <span style="border:0.5pt solid #555;padding:1pt 8pt">Không đạt</span>
           </td>
@@ -1671,7 +1956,7 @@ function renderPtd(){
 
     <!-- Note -->
     <div style="border:1pt solid #f59e0b;background:#fefce8;border-radius:3pt;padding:5pt 10pt;font-size:7.5pt;color:#78350f;margin-top:6pt">
-      <b>⚠️ Lưu ý:</b> Khi nhiệt độ vượt quá giới hạn, phải điều chỉnh kịp thời, ghi lại kết quả sau khi điều chỉnh và báo cáo theo <i>Quy trình xử lý tình huống khẩn cấp vắc xin bảo quản trong tủ lạnh</i>.
+      <b>⚠️ Lưu ý:</b> ${noteTxt}
     </div>
 
     <!-- Signatures -->
@@ -1682,7 +1967,7 @@ function renderPtd(){
 
     <!-- Footer -->
     <div style="display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:0.5pt solid #ccc;padding-top:5pt;margin-top:8pt">
-      <span>SOP.VC.7 — Ban hành: 12/08/2021</span>
+      <span>${footerLeft}</span>
       <span>Bệnh viện Đà Nẵng — Khoa Dược</span>
     </div>
   </div>`;
@@ -1710,23 +1995,28 @@ function printPtd(){
 
 // ══════════════════════════════════════════════════════
 // XUẤT PHIẾU THEO DÕI NHIỆT ĐỘ — SOP.VC.7
+// Tủ lạnh: đủ cột Cao nhất/Thấp nhất (tích lũy) theo mẫu SOP.VC.7
+// Kho thường: KHÔNG theo dõi Cao nhất/Thấp nhất, chỉ Sáng/Chiều
 // ══════════════════════════════════════════════════════
-function dlPhieuTD(){
-  if(!requireData()) return;
-  const cfg = getCfg();
-  const wb  = XLSX.utils.book_new();
+function buildPhieuTDWb(rowsArg, cfgArg){
+  const rws = rowsArg || rows;
+  const cfg = cfgArg || getCfg();
+  const isFridge = cfg.mode !== 'normal';
+  const ncols = isFridge ? 7 : 6;
+  const lastCol = isFridge ? 'G' : 'F';
+  const wb = XLSX.utils.book_new();
 
   /* ── Gom rows theo tháng ── */
   const byMonth = {};
-  rows.forEach(r => {
+  rws.forEach(r => {
     const key = pad(r.ts.getFullYear()) + '.' + pad(r.ts.getMonth()+1);
     if(!byMonth[key]) byMonth[key] = [];
     byMonth[key].push(r);
   });
 
-  /* ── Tính running max/min tích lũy từ bản ghi đầu tiên ── */
+  /* ── Tính running max/min tích lũy từ bản ghi đầu tiên (chỉ dùng cho tủ lạnh) ── */
   let runMax = -Infinity, runMin = Infinity;
-  const runningByIdx = rows.map(r => {
+  const runningByIdx = rws.map(r => {
     runMax = Math.max(runMax, r.temp);
     runMin = Math.min(runMin, r.temp);
     return { ts: r.ts, temp: r.temp, rMax: runMax, rMin: runMin };
@@ -1767,8 +2057,6 @@ function dlPhieuTD(){
   const CENTER    = { horizontal:'center', vertical:'center' };
   const THIN      = { style:'thin', color:{ rgb:'BBBBBB' } };
   const BORDER    = { top:THIN, bottom:THIN, left:THIN, right:THIN };
-  const THICKB    = { style:'medium', color:{ rgb:'1A3A5C' } };
-  const THICK_BORDER = { top:THICKB, bottom:THICKB, left:THICKB, right:THICKB };
 
   function hdrCell(v){
     return { v, t:'s', s:{ fill:HDR_FILL, font:HDR_FONT, alignment:CENTER, border:BORDER } };
@@ -1776,23 +2064,7 @@ function dlPhieuTD(){
   function hdrCell2(v){
     return { v, t:'s', s:{ fill:HDR_FILL2, font:HDR_FONT, alignment:CENTER, border:BORDER } };
   }
-  function bodyCell(v, bold){
-    const t = (typeof v === 'number') ? 'n' : 's';
-    return { v: v===null||v===undefined?'':v, t, s:{
-      font: bold ? BOLD_FONT : BODY_FONT,
-      alignment: CENTER, border: BORDER
-    }};
-  }
-  function dayCell(v){
-    return { v, t:'n', s:{ font:BOLD_FONT, alignment:CENTER, border:BORDER,
-      fill:{ fgColor:{ rgb:'EAF0FB' } } } };
-  }
-  function numCell(v){
-    const isNum = (v !== null && v !== undefined && v !== '');
-    return { v: isNum ? v : '', t: isNum ? 'n' : 's',
-      s:{ font:BODY_FONT, alignment:CENTER, border:BORDER,
-          numFmt:'0.0' } };
-  }
+  const blankRow = () => Array(ncols).fill('');
 
   /* ── Tạo 1 sheet cho mỗi tháng ── */
   const sortedMonths = Object.keys(byMonth).sort();
@@ -1815,78 +2087,88 @@ function dlPhieuTD(){
     const infoSerial = cfg.serial || 'N/A';
     const infoModel  = cfg.model  || 'N/A';
     const infoDesc   = cfg.tripDesc || '';
-    const quyDinh   = cfg.mode === 'fridge' ? '2°C – 8°C' : '18°C – 25°C';
+    const quyDinh   = isFridge ? '2°C – 8°C' : '18°C – 25°C';
+    const titleTxt  = isFridge
+      ? 'PHIẾU THEO DÕI NHIỆT ĐỘ TỦ/HÒM LẠNH/PHÍCH BẢO QUẢN VẮC XIN'
+      : 'PHIẾU THEO DÕI NHIỆT ĐỘ KHO BẢO QUẢN (NHIỆT ĐỘ THƯỜNG)';
 
     /* ── Xây dựng mảng AOA (array-of-arrays) ── */
-    // Row 0: tiêu đề phiếu (merge A1:G1)
-    // Row 1: thông tin thiết bị
-    // Row 2: sub-header 1
-    // Row 3: sub-header 2
-    // Row 4..4+days: dữ liệu
-    // Sau: chú thích
-
     const aoa = [];
 
     // Row 0 — Tiêu đề lớn
     aoa.push([
-      { v:'PHIẾU THEO DÕI NHIỆT ĐỘ TỦ/HÒM LẠNH/PHÍCH BẢO QUẢN VẮC XIN', t:'s',
+      { v:titleTxt, t:'s',
         s:{ font:{ bold:true, sz:13, color:{ rgb:'1A3A5C' } },
             alignment:{ horizontal:'center', vertical:'center' },
             fill:{ fgColor:{ rgb:'EAF0FB' } } } },
-      '','','','','',''
+      ...Array(ncols-1).fill('')
     ]);
 
     // Row 1 — Thông tin
     aoa.push([
       { v:`Serial: ${infoSerial}   |   Model: ${infoModel}   |   Tháng: ${pad(mm)}/${yyyy}   |   Quy định: ${quyDinh}`, t:'s',
         s:{ font:{ sz:9, italic:true }, alignment:{ horizontal:'left', vertical:'center' } } },
-      '','','','','',''
+      ...Array(ncols-1).fill('')
     ]);
     if(infoDesc){
       aoa.push([
         { v:`Mô tả: ${infoDesc}`, t:'s',
           s:{ font:{ sz:9, italic:true }, alignment:{ horizontal:'left' } } },
-        '','','','','',''
+        ...Array(ncols-1).fill('')
       ]);
     }
 
     // Blank row
-    aoa.push(['','','','','','','']);
+    aoa.push(blankRow());
 
-    // Header row 1 — nhóm cột
-    aoa.push([
-      hdrCell('Ngày'),
-      hdrCell('Nhiệt độ (°C)'), '', '', '',
-      hdrCell('Người thực hiện'),
-      hdrCell('Người kiểm tra')
-    ]);
+    if(isFridge){
+      // Header row 1 — nhóm cột (Tủ lạnh: Sáng, Chiều, Cao nhất, Thấp nhất)
+      aoa.push([
+        hdrCell('Ngày'),
+        hdrCell('Nhiệt độ (°C)'), '', '', '',
+        hdrCell('Người thực hiện'),
+        hdrCell('Người kiểm tra')
+      ]);
+      // Header row 2 — chi tiết
+      aoa.push([
+        hdrCell(''),
+        hdrCell2('Sáng (~7h35)'),
+        hdrCell2('Chiều (~16h55)'),
+        hdrCell2('Cao nhất (tích lũy)'),
+        hdrCell2('Thấp nhất (tích lũy)'),
+        hdrCell2(''),
+        hdrCell2('')
+      ]);
+    } else {
+      // Header row 1 — nhóm cột (Kho thường: chỉ Sáng, Chiều — không Cao/Thấp nhất)
+      aoa.push([
+        hdrCell('Ngày'),
+        hdrCell('Nhiệt độ (°C)'), '',
+        hdrCell('Người thực hiện'),
+        hdrCell('Người kiểm tra'),
+        hdrCell('Ghi chú')
+      ]);
+      // Header row 2 — chi tiết
+      aoa.push([
+        hdrCell(''),
+        hdrCell2('Sáng'),
+        hdrCell2('Chiều'),
+        hdrCell2(''),
+        hdrCell2(''),
+        hdrCell2('')
+      ]);
+    }
 
-    // Header row 2 — chi tiết
-    aoa.push([
-      hdrCell(''),
-      hdrCell2('Sáng (~7h35)'),
-      hdrCell2('Chiều (~16h55)'),
-      hdrCell2('Cao nhất (tích lũy)'),
-      hdrCell2('Thấp nhất (tích lũy)'),
-      hdrCell2(''),
-      hdrCell2('')
-    ]);
-
-    const dataStartRow = aoa.length; // for merges ref
-
-    // Dữ liệu 31 ngày
+    // Dữ liệu — đủ số ngày trong tháng
     for(let d = 1; d <= daysInMonth; d++){
       const dayRowsD = byDay[d] || [];
       const dateObj  = new Date(yyyy, mm-1, d);
 
       const rSang   = nearest(dayRowsD, 7, 35);
       const rChieu  = nearest(dayRowsD, 16, 55);
-      const running = runningUpToEndOfDay(dateObj);
 
       const tSang  = rSang  ? parseFloat(rSang.temp.toFixed(1))  : null;
       const tChieu = rChieu ? parseFloat(rChieu.temp.toFixed(1)) : null;
-      const tMax   = running.mx !== null ? parseFloat(running.mx.toFixed(1)) : null;
-      const tMin   = running.mn !== null ? parseFloat(running.mn.toFixed(1)) : null;
 
       const rowBg = d % 2 === 0 ? 'F5F8FD' : 'FFFFFF';
 
@@ -1905,31 +2187,48 @@ function dlPhieuTD(){
           fill:{ fgColor:{ rgb: rowBg } } } };
       }
 
-      aoa.push([
-        dayCellBg(d),
-        numCellBg(tSang),
-        numCellBg(tChieu),
-        numCellBg(tMax),
-        numCellBg(tMin),
-        emptyCellBg(),
-        emptyCellBg()
-      ]);
+      if(isFridge){
+        const running = runningUpToEndOfDay(dateObj);
+        const tMax = running.mx !== null ? parseFloat(running.mx.toFixed(1)) : null;
+        const tMin = running.mn !== null ? parseFloat(running.mn.toFixed(1)) : null;
+        aoa.push([
+          dayCellBg(d),
+          numCellBg(tSang),
+          numCellBg(tChieu),
+          numCellBg(tMax),
+          numCellBg(tMin),
+          emptyCellBg(),
+          emptyCellBg()
+        ]);
+      } else {
+        aoa.push([
+          dayCellBg(d),
+          numCellBg(tSang),
+          numCellBg(tChieu),
+          emptyCellBg(),
+          emptyCellBg(),
+          emptyCellBg()
+        ]);
+      }
     }
 
     // Chú thích cuối
-    aoa.push(['','','','','','','']);
+    aoa.push(blankRow());
+    const noteTxt = isFridge
+      ? '⚠️ Lưu ý: Khi nhiệt độ ngoài khoảng cho phép, phải báo cáo và xử lý theo Quy trình khẩn cấp vắc xin (SOP.VC.7)'
+      : '⚠️ Lưu ý: Khi nhiệt độ ngoài khoảng quy định, phải điều chỉnh kịp thời và ghi rõ lý do/biện pháp xử lý vào cột Ghi chú';
     aoa.push([
-      { v:'⚠️ Lưu ý: Khi nhiệt độ ngoài khoảng cho phép, phải báo cáo và xử lý theo Quy trình khẩn cấp vắc xin (SOP.VC.7)', t:'s',
+      { v:noteTxt, t:'s',
         s:{ font:{ sz:8, italic:true, color:{ rgb:'78350F' } },
             fill:{ fgColor:{ rgb:'FEFCE8' } }, alignment:{ horizontal:'left' } } },
-      '','','','','',''
+      ...Array(ncols-1).fill('')
     ]);
 
     /* ── Tạo worksheet ── */
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
     /* Column widths */
-    ws['!cols'] = [
+    ws['!cols'] = isFridge ? [
       { wch:7 },   // Ngày
       { wch:16 },  // Sáng
       { wch:16 },  // Chiều
@@ -1937,6 +2236,13 @@ function dlPhieuTD(){
       { wch:20 },  // Thấp nhất
       { wch:18 },  // Người TH
       { wch:18 }   // Người KT
+    ] : [
+      { wch:7 },   // Ngày
+      { wch:16 },  // Sáng
+      { wch:16 },  // Chiều
+      { wch:18 },  // Người TH
+      { wch:18 },  // Người KT
+      { wch:22 }   // Ghi chú
     ];
 
     /* Row heights */
@@ -1948,24 +2254,37 @@ function dlPhieuTD(){
 
     /* Merges */
     const M = [];
-    // Tiêu đề A1:G1
-    M.push({ s:{r:0,c:0}, e:{r:0,c:6} });
+    // Tiêu đề
+    M.push({ s:{r:0,c:0}, e:{r:0,c:ncols-1} });
     // Info rows
-    M.push({ s:{r:1,c:0}, e:{r:1,c:6} });
-    if(infoDesc) M.push({ s:{r:2,c:0}, e:{r:2,c:6} });
+    M.push({ s:{r:1,c:0}, e:{r:1,c:ncols-1} });
+    if(infoDesc) M.push({ s:{r:2,c:0}, e:{r:2,c:ncols-1} });
 
     const hdrOffset = infoDesc ? 4 : 3; // blank row index (0-based) before header
     const h1Row = hdrOffset;   // "Ngày" | "Nhiệt độ" header
     const h2Row = hdrOffset+1; // sub-header
 
-    // Merge "Nhiệt độ (°C)" → cols 1-4
-    M.push({ s:{r:h1Row,c:1}, e:{r:h1Row,c:4} });
-    // Merge "Ngày" vertically
-    M.push({ s:{r:h1Row,c:0}, e:{r:h2Row,c:0} });
-    // Merge "Người TH" vertically
-    M.push({ s:{r:h1Row,c:5}, e:{r:h2Row,c:5} });
-    // Merge "Người KT" vertically
-    M.push({ s:{r:h1Row,c:6}, e:{r:h2Row,c:6} });
+    if(isFridge){
+      // Merge "Nhiệt độ (°C)" → cols 1-4
+      M.push({ s:{r:h1Row,c:1}, e:{r:h1Row,c:4} });
+      // Merge "Ngày" vertically
+      M.push({ s:{r:h1Row,c:0}, e:{r:h2Row,c:0} });
+      // Merge "Người TH" vertically
+      M.push({ s:{r:h1Row,c:5}, e:{r:h2Row,c:5} });
+      // Merge "Người KT" vertically
+      M.push({ s:{r:h1Row,c:6}, e:{r:h2Row,c:6} });
+    } else {
+      // Merge "Nhiệt độ (°C)" → cols 1-2
+      M.push({ s:{r:h1Row,c:1}, e:{r:h1Row,c:2} });
+      // Merge "Ngày" vertically
+      M.push({ s:{r:h1Row,c:0}, e:{r:h2Row,c:0} });
+      // Merge "Người TH" vertically
+      M.push({ s:{r:h1Row,c:3}, e:{r:h2Row,c:3} });
+      // Merge "Người KT" vertically
+      M.push({ s:{r:h1Row,c:4}, e:{r:h2Row,c:4} });
+      // Merge "Ghi chú" vertically
+      M.push({ s:{r:h1Row,c:5}, e:{r:h2Row,c:5} });
+    }
 
     ws['!merges'] = M;
 
@@ -1977,19 +2296,26 @@ function dlPhieuTD(){
       fitToWidth: 1,
       fitToHeight: 0
     };
-    ws['!printArea'] = `A1:G${aoa.length}`;
+    ws['!printArea'] = `A1:${lastCol}${aoa.length}`;
     ws['!freeze'] = { xSplit:0, ySplit: (infoDesc?6:5) };
 
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
   });
+
+  return { wb, sortedMonths };
+}
+
+function dlPhieuTD(){
+  if(!requireData()) return;
+  const cfg = getCfg();
+  const { wb, sortedMonths } = buildPhieuTDWb(rows, cfg);
 
   if(!wb.SheetNames.length){
     alert('Không có dữ liệu để xuất!');
     return;
   }
 
-  const s = getCfg();
-  xlDL(wb, `PhieuTD_${s.serial}_${sortedMonths.join('_')}.xlsx`);
+  xlDL(wb, `PhieuTD_${cfg.serial}_${sortedMonths.join('_')}.xlsx`);
 }
 
 
@@ -2001,6 +2327,7 @@ let ptdPrevPages = [], curPtdPrevPage = 0;
 function buildPhieuTDPreview(){
   if(!rows.length) return;
   const cfg = getCfg();
+  const isFridge = cfg.mode !== 'normal';
 
   /* Gom rows theo tháng */
   const byMonth = {};
@@ -2010,7 +2337,7 @@ function buildPhieuTDPreview(){
     byMonth[key].push(r);
   });
 
-  /* Running max/min tích lũy toàn bộ từ đầu */
+  /* Running max/min tích lũy toàn bộ từ đầu (chỉ dùng cho tủ lạnh) */
   let runMax = -Infinity, runMin = Infinity;
   const runningArr = rows.map(r => {
     runMax = Math.max(runMax, r.temp);
@@ -2046,7 +2373,7 @@ function buildPhieuTDPreview(){
     const monthRows = byMonth[monthKey];
     const [yyyy, mm] = monthKey.split('.').map(Number);
     const daysInMonth = new Date(yyyy, mm, 0).getDate();
-    const quyDinh = cfg.mode === 'fridge' ? '2°C – 8°C' : '18°C – 25°C';
+    const quyDinh = isFridge ? '2°C – 8°C' : '18°C – 25°C';
 
     const byDay = {};
     monthRows.forEach(r => {
@@ -2062,21 +2389,43 @@ function buildPhieuTDPreview(){
       const dateObj  = new Date(yyyy, mm-1, d);
       const rSang  = nearest(dayRowsD, 7, 35);
       const rChieu = nearest(dayRowsD, 16, 55);
-      const run    = runningUpToEndOfDay(dateObj);
 
       const fmtT = v => v !== null ? v.toFixed(1) : '<span style="color:#bbb">—</span>';
       const bg   = d % 2 === 0 ? '#f5f8fd' : '#ffffff';
 
+      let extraCols = '';
+      if(isFridge){
+        const run = runningUpToEndOfDay(dateObj);
+        extraCols = `
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(run.mx !== null ? parseFloat(run.mx.toFixed(1)) : null)}</td>
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(run.mn !== null ? parseFloat(run.mn.toFixed(1)) : null)}</td>`;
+      }
+
       tbodyRows += `<tr style="height:16pt;background:${bg}">
         <td style="text-align:center;font-weight:700;border:0.5pt solid #ccc;padding:1pt 4pt;background:#e3ecf8">${d}</td>
         <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(rSang ? parseFloat(rSang.temp.toFixed(1)) : null)}</td>
-        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(rChieu ? parseFloat(rChieu.temp.toFixed(1)) : null)}</td>
-        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(run.mx !== null ? parseFloat(run.mx.toFixed(1)) : null)}</td>
-        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(run.mn !== null ? parseFloat(run.mn.toFixed(1)) : null)}</td>
+        <td style="text-align:center;border:0.5pt solid #ccc;padding:1pt 4pt">${fmtT(rChieu ? parseFloat(rChieu.temp.toFixed(1)) : null)}</td>${extraCols}
         <td style="border:0.5pt solid #ccc;padding:1pt 4pt"></td>
-        <td style="border:0.5pt solid #ccc;padding:1pt 4pt"></td>
+        <td style="border:0.5pt solid #ccc;padding:1pt 4pt"></td>${isFridge?'':'\n        <td style="border:0.5pt solid #ccc;padding:1pt 4pt"></td>'}
       </tr>`;
     }
+
+    const subtitle = isFridge
+      ? 'Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin — SOP.VC.7'
+      : `Kho bảo quản (nhiệt độ thường)${cfg.khoName?' — '+cfg.khoName:''}`;
+    const maTL = isFridge ? 'Mã TL: SOP.VC.7' : '';
+    const tempColspan = isFridge ? 4 : 2;
+    const tempSubHeaders = isFridge
+      ? `<th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:10%">Sáng<br><span style="font-weight:400;font-size:7pt;opacity:.85">~7:35</span></th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Chiều<br><span style="font-weight:400;font-size:7pt;opacity:.85">~16:55</span></th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Cao nhất<br><span style="font-weight:400;font-size:7pt;opacity:.85">(tích lũy)</span></th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Thấp nhất<br><span style="font-weight:400;font-size:7pt;opacity:.85">(tích lũy)</span></th>`
+      : `<th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:16%">Sáng</th>
+            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:16%">Chiều</th>`;
+    const lastColHdr = isFridge ? '' : `<th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:12%">Ghi chú</th>`;
+    const noteTxt = isFridge
+      ? 'Khi nhiệt độ vượt quá giới hạn, phải điều chỉnh kịp thời và báo cáo theo <i>Quy trình xử lý tình huống khẩn cấp vắc xin (SOP.VC.7)</i>.'
+      : 'Khi nhiệt độ ngoài khoảng quy định, phải điều chỉnh kịp thời và ghi rõ lý do/biện pháp xử lý vào cột Ghi chú.';
 
     return `<div class="eli-wrap" style="padding:20px 28px;font-family:Arial,sans-serif;font-size:9pt">
 
@@ -2086,7 +2435,7 @@ function buildPhieuTDPreview(){
           Phiếu Theo Dõi Nhiệt Độ
         </div>
         <div style="font-size:9pt;color:#555;margin-top:2pt">
-          Tủ/Hòm Lạnh/Phích Bảo Quản Vắc Xin — SOP.VC.7
+          ${subtitle}
         </div>
       </div>
 
@@ -2100,7 +2449,7 @@ function buildPhieuTDPreview(){
             <b>Tháng:</b> ${pad(mm)}/${yyyy}
           </td>
           <td style="padding:4pt 8pt;width:20%;text-align:right;font-size:8pt;color:#555">
-            Mã TL: SOP.VC.7
+            ${maTL}
           </td>
         </tr>
         <tr style="border-top:0.5pt solid #ccc">
@@ -2118,15 +2467,13 @@ function buildPhieuTDPreview(){
         <thead>
           <tr style="background:#1a3a5c;color:#fff">
             <th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:6%">Ngày</th>
-            <th colspan="4" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center">Nhiệt độ (°C)</th>
+            <th colspan="${tempColspan}" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center">Nhiệt độ (°C)</th>
             <th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>thực hiện</th>
             <th rowspan="2" style="padding:4pt;border:0.5pt solid #1a3a5c;text-align:center;width:14%">Người<br>kiểm tra</th>
+            ${lastColHdr}
           </tr>
           <tr style="background:#2d5a8c;color:#fff">
-            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:10%">Sáng<br><span style="font-weight:400;font-size:7pt;opacity:.85">~7:35</span></th>
-            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Chiều<br><span style="font-weight:400;font-size:7pt;opacity:.85">~16:55</span></th>
-            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Cao nhất<br><span style="font-weight:400;font-size:7pt;opacity:.85">(tích lũy)</span></th>
-            <th style="padding:3pt 4pt;border:0.5pt solid #2d5a8c;text-align:center;width:12%">Thấp nhất<br><span style="font-weight:400;font-size:7pt;opacity:.85">(tích lũy)</span></th>
+            ${tempSubHeaders}
           </tr>
         </thead>
         <tbody>${tbodyRows}</tbody>
@@ -2134,7 +2481,7 @@ function buildPhieuTDPreview(){
 
       <!-- Ghi chú -->
       <div style="border:1pt solid #f59e0b;background:#fefce8;border-radius:3pt;padding:5pt 10pt;font-size:7.5pt;color:#78350f;margin-top:6pt">
-        <b>⚠️ Lưu ý:</b> Khi nhiệt độ vượt quá giới hạn, phải điều chỉnh kịp thời và báo cáo theo <i>Quy trình xử lý tình huống khẩn cấp vắc xin (SOP.VC.7)</i>.
+        <b>⚠️ Lưu ý:</b> ${noteTxt}
       </div>
 
       <!-- Chữ ký -->
@@ -2155,7 +2502,7 @@ function buildPhieuTDPreview(){
 
       <!-- Footer -->
       <div style="display:flex;justify-content:space-between;font-size:7pt;color:#888;border-top:0.5pt solid #ccc;padding-top:5pt;margin-top:8pt">
-        <span>SOP.VC.7 — Ban hành: 12/08/2021</span>
+        <span>${isFridge?'SOP.VC.7 — Ban hành: 12/08/2021':'Bệnh viện Đà Nẵng — Khoa Dược'}</span>
         <span>Tháng ${pad(mm)}/${yyyy} — Serial: ${cfg.serial || 'N/A'}</span>
       </div>
     </div>`;
@@ -2165,6 +2512,7 @@ function buildPhieuTDPreview(){
   renderPtdPrevPage();
   buildPtdPrevTabs();
 }
+
 
 function renderPtdPrevPage(){
   const page = document.getElementById('ptd-prev-page');
